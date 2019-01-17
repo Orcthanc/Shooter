@@ -1,14 +1,10 @@
+#include "Util.h"
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
 #include <iostream>
 #include <exception>
-
-template <typename T>
-T throwonerror(T x, const char* error){
-    if(!x)
-        throw std::runtime_error(error);
-    return x;
-}
 
 int main( int argc, char** argv ){
 
