@@ -1,7 +1,11 @@
 language: cpp
 
-os:
-  - linux
+matrix:
+    include:
+        name:
+            os: linux
+            sudo: required
+            dist: xenial
 
 compiler:
   - gcc
