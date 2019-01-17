@@ -13,7 +13,7 @@ VulkanDevice::VulkanDevice( const InitSettings& settings ){
 	if( !settings.existing_instance )
 		createInstance( settings.desired_extensions );
 	else
-		instance = *settings.existing_instance;
+		instance = settings.existing_instance;
 }
 
 VulkanDevice::~VulkanDevice(){
@@ -23,6 +23,43 @@ VulkanDevice::~VulkanDevice(){
 
 void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
 	active_extensions = getAvaibleExtensions( desiredExts, true );
+
+	VkApplicationInfo application_info = {
+		//Struct Type
+		VK_STRUCTURE_TYPE_APPLICATION_INFO,
+		//pNext
+		nullptr,
+		//Name of Window
+		"Shooter",
+		//Vk Version
+		VK_MAKE_VERSION( 1, 0, 0 ),
+		//Name of Engine
+		"Shooter Engine",
+		//Engine Version
+		VK_MAKE_VERSION( 1, 0, 0 ),
+		//Api Version
+		VK_MAKE_VERSION( 1, 0, 0 ),
+	};
+
+	VkInstanceCreateInfo instance_create_info = {
+		//Structure Type
+		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+		//pNext
+		nullptr,
+		//flags
+		0,
+		//Selfexplanatory
+		&application_info,
+		//Enabled Layers
+		0,
+		nullptr,
+		//Extensions to enable
+		static_cast<uint32_t>( active_extensions.size() ),
+		active_extensions.size() > 0 ? &active_extensions[0] : nullptr,
+	};
+
+	instance = make_shared<VkInstance>();
+	vkCreateInstance( &instance_create_info, nullptr, instance.get() );
 }
 
 static bool ext_supported( vector<VkExtensionProperties> avaible, const char* ext_name ){
