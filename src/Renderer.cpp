@@ -83,6 +83,8 @@ void VulkanDevice::createDevice( const InitSettings& settings ){
 
 	vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 	getRequiredQueueFamilies( settings, phys_dev );
+
+	//TODO
 }
 
 void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
