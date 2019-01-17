@@ -31,11 +31,11 @@ void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
 		//pNext
 		nullptr,
 		//Name of Window
-		"Shooter",
+		NAME,
 		//Vk Version
 		VK_MAKE_VERSION( 1, 0, 0 ),
 		//Name of Engine
-		"Shooter Engine",
+		NAME " Engine",
 		//Engine Version
 		VK_MAKE_VERSION( 1, 0, 0 ),
 		//Api Version
@@ -60,7 +60,7 @@ void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
 	};
 
 	instance = make_shared<VkInstance>();
-	throwonerror( vkCreateInstance( &instance_create_info, nullptr, instance.get() ), "Could not create VkInstance" );
+	throwonerror( vkCreateInstance( &instance_create_info, nullptr, instance.get() ), "Could not create VkInstance", VK_SUCCESS );
 }
 
 static bool ext_supported( vector<VkExtensionProperties> avaible, const char* ext_name ){
@@ -76,10 +76,10 @@ vector<const char*> VulkanDevice::getAvaibleExtensions( vector<const char*> desi
 	vector<VkExtensionProperties> avaible_exts;
 	uint32_t avaible_ext_count;
 
-	throwonerror( vkEnumerateInstanceExtensionProperties( nullptr, &avaible_ext_count, nullptr ), "Could not get instance extensions" );
+	throwonerror( vkEnumerateInstanceExtensionProperties( nullptr, &avaible_ext_count, nullptr ), "Could not get instance extensions", VK_SUCCESS );
 
 	avaible_exts.resize( avaible_ext_count );
-	throwonerror( vkEnumerateInstanceExtensionProperties( nullptr, &avaible_ext_count, &avaible_exts[0] ), "Could not get instance extensions" );
+	throwonerror( vkEnumerateInstanceExtensionProperties( nullptr, &avaible_ext_count, &avaible_exts[0] ), "Could not get instance extensions", VK_SUCCESS );
 
 	if( addGLFWRequired ){
 		uint32_t glfw_ext_count;

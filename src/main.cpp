@@ -18,7 +18,7 @@ int main( int argc, char** argv ){
         throwonerror(glfwInit(), "can't init glfw");
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        throwonerror(window = glfwCreateWindow(1280, 720, "Shooter", NULL, NULL), "can't create window");
+        throwonerror(window = glfwCreateWindow(width, height, NAME, NULL, NULL), "can't create window");
 
 		InitSettings main_window_settings = {
 			window,
