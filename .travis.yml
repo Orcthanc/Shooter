@@ -13,3 +13,6 @@ before_script:
   - cmake ..
 
 script: make
+
+install:
+    sudo apt-get install xorg-dev libglu1-mesa-dev
