@@ -18,7 +18,8 @@ VulkanDevice::VulkanDevice( const InitSettings& settings ){
 }
 
 VulkanDevice::~VulkanDevice(){
-
+	if( instance.use_count() == 1 )
+		vkDestroyInstance( *instance, nullptr );
 }
 
 
