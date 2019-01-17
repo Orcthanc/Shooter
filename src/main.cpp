@@ -21,7 +21,13 @@ int main( int argc, char** argv ){
         throwonerror(window = glfwCreateWindow(width, height, NAME, NULL, NULL), "can't create window");
 
 		InitSettings main_window_settings = {
+			//GLFW-Window
 			window,
+			//Optional -- Existing VulkanInstance to use
+			nullptr,
+			//Instance Extensions
+			vector<const char*> {},
+			//Device Extensions
 			vector<const char*> {},
 		};
 

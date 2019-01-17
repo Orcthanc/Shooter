@@ -15,6 +15,7 @@ namespace Shooter{
 			std::shared_ptr<VkInstance> existing_instance;
 			//Extensions to be loaded
 			std::vector<const char*> desired_instance_extensions;
+			std::vector<const char*> desired_device_extensions;
 		};
 
 		class VulkanDevice{
@@ -30,7 +31,7 @@ namespace Shooter{
 				std::vector<const char*> getAvaibleExtensions( std::vector<const char*> desired, bool addGLFWRequired );
 				void createInstance( const std::vector<const char*> desiredExts );
 				void createDevice( const InitSettings& settings );
-				void selectPhysicalDevice( const InitSettings& settings );
+				void selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev );
 		};
 	}
 }
