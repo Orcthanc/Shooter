@@ -1,10 +1,15 @@
 #include "Util.h"
+#include "Renderer.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <exception>
+#include <memory>
+
+using namespace std;
+using namespace Shooter::Renderer;
 
 int main( int argc, char** argv ){
 
@@ -14,6 +19,13 @@ int main( int argc, char** argv ){
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         throwonerror(window = glfwCreateWindow(1280, 720, "Shooter", NULL, NULL), "can't create window");
+
+		InitSettings main_window_settings = {
+			window,
+			vector<const char*> {},
+		};
+
+		unique_ptr<VulkanDevice> vulkan_device( new VulkanDevice( main_window_settings ));
 
         while (!glfwWindowShouldClose(window)) {
 
