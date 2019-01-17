@@ -1,11 +1,7 @@
 language: cpp
 
-matrix:
-    include:
-        name:
-            os: linux
-            sudo: required
-            dist: xenial
+os:
+  - linux
 
 compiler:
   - gcc
@@ -17,11 +13,3 @@ before_script:
   - cmake ..
 
 script: make
-
-install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test;
-      sudo apt-get update;
-      sudo apt-get install -qq build-essential xorg-dev;
-      sudo apt-get install libglfw3-dev libglfw3;
-    fi
