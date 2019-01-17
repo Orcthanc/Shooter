@@ -12,7 +12,7 @@ using namespace Shooter::Renderer;
 
 VulkanDevice::VulkanDevice( const InitSettings& settings ){
 	if( !settings.existing_instance )
-		createInstance( settings.desired_extensions );
+		createInstance( settings.desired_instance_extensions );
 	else
 		instance = settings.existing_instance;
 }
@@ -22,6 +22,22 @@ VulkanDevice::~VulkanDevice(){
 		vkDestroyInstance( *instance, nullptr );
 }
 
+void VulkanDevice::selectPhysicalDevice( const InitSettings& settings ){
+	vector<VkPhysicalDevice> devices;
+	uint32_t device_amount;
+
+	throwonerror( vkEnumeratePhysicalDevices( *instance, &device_amount, nullptr ), "Failed to enumerate physical devices", VK_SUCCESS );
+	devices.resize( device_amount );
+	throwonerror( vkEnumeratePhysicalDevices( *instance, &device_amount, &devices[0] ), "Failed to enumerate physical devices", VK_SUCCESS );
+
+	for( size_t i = 0; i < device_amount; ++i ){
+		//TODO
+	}
+}
+
+void VulkanDevice::createDevice( const InitSettings& settings ){
+//TODO
+}
 
 void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
 	active_extensions = getAvaibleExtensions( desiredExts, true );
