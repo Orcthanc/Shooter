@@ -36,8 +36,10 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 	throwonerror( vkEnumeratePhysicalDevices( *instance, &device_amount, nullptr ), "Failed to enumerate physical devices", VK_SUCCESS );
 	devices.resize( device_amount );
 	throwonerror( vkEnumeratePhysicalDevices( *instance, &device_amount, &devices[0] ), "Failed to enumerate physical devices", VK_SUCCESS );
-	
+
 	uint32_t desired_device_index = 0;
+	bool extensions_supported;
+
 	for( ;desired_device_index < device_amount; ++desired_device_index ){
 		VkPhysicalDeviceFeatures features;
 		VkPhysicalDeviceProperties properties;
@@ -46,7 +48,7 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 		vkGetPhysicalDeviceProperties( devices[desired_device_index], &properties );
 
 		//TODO check better if device is sufficient
-		bool extensions_supported = true;
+		extensions_supported = true;
 
 		vector<VkExtensionProperties> avaible_device_extensions;
 		uint32_t avaible_ext_count;
@@ -55,7 +57,7 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 
 		avaible_device_extensions.resize( avaible_ext_count );
 		throwonerror( vkEnumerateDeviceExtensionProperties( devices[desired_device_index], nullptr, &avaible_ext_count, &avaible_device_extensions[0] ), "Could not get Extensions of a device", VK_SUCCESS );
-		
+
 		for( auto& ext: settings.desired_device_extensions ){
 			if( !ext_supported( avaible_device_extensions, ext ))
 				extensions_supported = false;
@@ -64,12 +66,23 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 			break;
 	}
 
+	throwonerror( extensions_supported, "Could not find a physical vulkan device (Graphics Card) with the required extensions" );
+
 	phys_dev = devices[desired_device_index];
+}
+
+
+void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev ){
+
+	//TODO
 }
 
 void VulkanDevice::createDevice( const InitSettings& settings ){
 	VkPhysicalDevice phys_dev;
 	selectPhysicalDevice( settings, phys_dev );
+
+	vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	getRequiredQueueFamilies( settings, phys_dev );
 }
 
 void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){

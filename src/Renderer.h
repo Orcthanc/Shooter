@@ -32,6 +32,7 @@ namespace Shooter{
 				void createInstance( const std::vector<const char*> desiredExts );
 				void createDevice( const InitSettings& settings );
 				void selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev );
+				void getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev );
 		};
 	}
 }
