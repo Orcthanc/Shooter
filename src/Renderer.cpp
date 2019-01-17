@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Util.h"
 
 #include <string.h>
 
@@ -59,7 +60,7 @@ void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
 	};
 
 	instance = make_shared<VkInstance>();
-	vkCreateInstance( &instance_create_info, nullptr, instance.get() );
+	throwonerror( vkCreateInstance( &instance_create_info, nullptr, instance.get() ), "Could not create VkInstance" );
 }
 
 static bool ext_supported( vector<VkExtensionProperties> avaible, const char* ext_name ){
@@ -75,10 +76,10 @@ vector<const char*> VulkanDevice::getAvaibleExtensions( vector<const char*> desi
 	vector<VkExtensionProperties> avaible_exts;
 	uint32_t avaible_ext_count;
 
-	vkEnumerateInstanceExtensionProperties( nullptr, &avaible_ext_count, nullptr );
+	throwonerror( vkEnumerateInstanceExtensionProperties( nullptr, &avaible_ext_count, nullptr ), "Could not get instance extensions" );
 
 	avaible_exts.resize( avaible_ext_count );
-	vkEnumerateInstanceExtensionProperties( nullptr, &avaible_ext_count, &avaible_exts[0] );
+	throwonerror( vkEnumerateInstanceExtensionProperties( nullptr, &avaible_ext_count, &avaible_exts[0] ), "Could not get instance extensions" );
 
 	if( addGLFWRequired ){
 		uint32_t glfw_ext_count;
