@@ -11,6 +11,8 @@ namespace Shooter{
 		struct InitSettings{
 			//Window the surface should use
 			GLFWwindow* glfw_window;
+			//Create a presentation surface on the window
+			bool create_surface;
 			//Either nullptr or a specific VkInstance
 			std::shared_ptr<VkInstance> existing_instance;
 			//Extensions to be loaded
@@ -25,7 +27,9 @@ namespace Shooter{
 
 				//All loaded extensions
 				std::vector<const char*> active_extensions;
+				GLFWwindow* glfw_window;
 				std::shared_ptr<VkInstance> instance;
+				std::shared_ptr<VkSurfaceKHR> surface;
 			private:
 				//Returns all avaible extensions out of desired and (if set to true) also the extensions required by glfw
 				std::vector<const char*> getAvaibleExtensions( std::vector<const char*> desired, bool addGLFWRequired );

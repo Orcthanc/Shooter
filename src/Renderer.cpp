@@ -18,10 +18,20 @@ static bool ext_supported( vector<VkExtensionProperties> avaible, const char* ex
 }
 
 VulkanDevice::VulkanDevice( const InitSettings& settings ){
-	if( !settings.existing_instance )
+	glfw_window = settings.glfw_window;
+
+	if( settings.existing_instance == nullptr ){
 		createInstance( settings.desired_instance_extensions );
-	else
+	}else {
 		instance = settings.existing_instance;
+	}
+
+	if( settings.create_surface ){
+		surface = make_shared<VkSurfaceKHR>();
+		throwonerror( glfwCreateWindowSurface( *instance, glfw_window, NULL, surface.get() ), "Could not create a presentation-surface", VK_SUCCESS );
+	}
+
+	createDevice( settings );
 }
 
 VulkanDevice::~VulkanDevice(){
@@ -73,6 +83,25 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 
 
 void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev ){
+	uint32_t queue_family_count = 0;
+	vector<VkQueueFamilyProperties> properties;
+
+	vkGetPhysicalDeviceQueueFamilyProperties( phys_dev, &queue_family_count, nullptr );
+	properties.resize( queue_family_count );
+
+	vkGetPhysicalDeviceQueueFamilyProperties( phys_dev, &queue_family_count, &properties[0] );
+	if( properties.size() == 0 || queue_family_count == 0 )
+		throw std::runtime_error( "Could not get Queue Family Properties for any Family" );
+
+	uint32_t queue_family_index = 0;
+
+	for( ; queue_family_index < properties.size(); ++queue_family_index ){
+		VkBool32 surface_presentation_support = VK_FALSE;
+		VkResult res = vkGetPhysicalDeviceSurfaceSupportKHR( phys_dev, queue_family_index, *surface, &surface_presentation_support );
+
+		if( res == VK_SUCCESS && surface_presentation_support == VK_TRUE )
+			break;
+	}
 
 	//TODO
 }
@@ -89,6 +118,10 @@ void VulkanDevice::createDevice( const InitSettings& settings ){
 
 void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
 	active_extensions = getAvaibleExtensions( desiredExts, true );
+
+	for( auto& ext: active_extensions ){
+		printf( "%s\n", ext );
+	}
 
 	VkApplicationInfo application_info = {
 		//Struct Type

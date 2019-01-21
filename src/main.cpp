@@ -23,6 +23,8 @@ int main( int argc, char** argv ){
 		InitSettings main_window_settings = {
 			//GLFW-Window
 			window,
+			//Create a presentation surface?
+			true,
 			//Optional -- Existing VulkanInstance to use
 			nullptr,
 			//Instance Extensions
