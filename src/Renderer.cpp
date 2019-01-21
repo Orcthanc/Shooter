@@ -35,6 +35,8 @@ VulkanDevice::VulkanDevice( const InitSettings& settings ){
 }
 
 VulkanDevice::~VulkanDevice(){
+	vkDestroyDevice( *device, nullptr );
+
 	if( instance.use_count() == 1 )
 		vkDestroyInstance( *instance, nullptr );
 }
@@ -142,7 +144,7 @@ void VulkanDevice::createDevice( const InitSettings& settings ){
 		{},
 	};
 
-	device = make_shared<VkDevice>();
+	device = make_unique<VkDevice>();
 	throwonerror( vkCreateDevice( phys_dev, &dev_cr_inf, nullptr, device.get() ), "Could not create logical vulkan device", VK_SUCCESS );
 }
 
