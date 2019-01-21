@@ -32,6 +32,9 @@ VulkanDevice::VulkanDevice( const InitSettings& settings ){
 	}
 
 	createDevice( settings );
+
+	if( settings.swapchain_settings )
+		createSwapchain( *settings.swapchain_settings );
 }
 
 VulkanDevice::~VulkanDevice(){
@@ -39,6 +42,10 @@ VulkanDevice::~VulkanDevice(){
 
 	if( instance.use_count() == 1 )
 		vkDestroyInstance( *instance, nullptr );
+}
+
+void VulkanDevice::createSwapchain( const InitSwapchainSettings& settings ){
+	
 }
 
 void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev ){
@@ -82,7 +89,6 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 
 	phys_dev = devices[desired_device_index];
 }
-
 
 void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev, vector<VkDeviceQueueCreateInfo>& create_infos ){
 	uint32_t queue_family_count = 0;

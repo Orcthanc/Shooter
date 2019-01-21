@@ -8,6 +8,16 @@
 
 namespace Shooter{
 	namespace Renderer{
+		struct InitSwapchainSettings{
+			VkPresentModeKHR desired_present_mode;
+			uint32_t desired_num_images;
+			VkSurfaceFormatKHR format;
+			VkExtent2D img_size;
+			VkImageUsageFlags flags;
+			VkSurfaceTransformFlagBitsKHR transform_flags;
+			VkSwapchainKHR old_swapchain;
+		};
+
 		struct InitSettings{
 			//Window the surface should use
 			GLFWwindow* glfw_window;
@@ -18,6 +28,8 @@ namespace Shooter{
 			//Extensions to be loaded
 			std::vector<const char*> desired_instance_extensions;
 			std::vector<const char*> desired_device_extensions;
+			//Null if no swapchain is needed, else the swapchain-settings
+			InitSwapchainSettings* swapchain_settings;
 		};
 
 		class VulkanDevice{
@@ -42,6 +54,7 @@ namespace Shooter{
 				void selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev );
 				//Returns all needed QueueFamilies
 				void getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev, std::vector<VkDeviceQueueCreateInfo>& create_infos );
+				void createSwapchain( const InitSwapchainSettings& settings );
 		};
 	}
 }
