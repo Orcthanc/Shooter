@@ -33,9 +33,13 @@ namespace Shooter{
 			private:
 				//Returns all avaible extensions out of desired and (if set to true) also the extensions required by glfw
 				std::vector<const char*> getAvaibleExtensions( std::vector<const char*> desired, bool addGLFWRequired );
+				//Creates a VkInstance and safes it in instance
 				void createInstance( const std::vector<const char*> desiredExts );
+				//Creates a logical device
 				void createDevice( const InitSettings& settings );
+				//Finds a Physical device suitable for rendering
 				void selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev );
+				//Returns all needed QueueFamilies
 				void getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev );
 		};
 	}

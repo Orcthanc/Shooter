@@ -20,7 +20,7 @@ static bool ext_supported( vector<VkExtensionProperties> avaible, const char* ex
 VulkanDevice::VulkanDevice( const InitSettings& settings ){
 	glfw_window = settings.glfw_window;
 
-	if( settings.existing_instance == nullptr ){
+	if( !settings.existing_instance ){
 		createInstance( settings.desired_instance_extensions );
 	}else {
 		instance = settings.existing_instance;
@@ -118,10 +118,6 @@ void VulkanDevice::createDevice( const InitSettings& settings ){
 
 void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
 	active_extensions = getAvaibleExtensions( desiredExts, true );
-
-	for( auto& ext: active_extensions ){
-		printf( "%s\n", ext );
-	}
 
 	VkApplicationInfo application_info = {
 		//Struct Type
