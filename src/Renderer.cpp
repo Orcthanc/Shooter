@@ -82,7 +82,7 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 }
 
 
-void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev ){
+void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev, vector<VkDeviceQueueCreateInfo>& create_infos ){
 	uint32_t queue_family_count = 0;
 	vector<VkQueueFamilyProperties> properties;
 
@@ -103,17 +103,47 @@ void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhy
 			break;
 	}
 
-	//TODO
+	vector<float> priorities = { 1 };
+
+	create_infos.push_back( {
+		VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+		nullptr,
+		0,
+		queue_family_index,
+		static_cast<uint32_t>( priorities.size() ),
+		priorities.size() > 0 ? &priorities[0] : nullptr,
+	} );
 }
 
 void VulkanDevice::createDevice( const InitSettings& settings ){
 	VkPhysicalDevice phys_dev;
 	selectPhysicalDevice( settings, phys_dev );
 
-	vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	getRequiredQueueFamilies( settings, phys_dev );
+	vector<VkDeviceQueueCreateInfo> queue_create_infos;
+	getRequiredQueueFamilies( settings, phys_dev, queue_create_infos );
 
-	//TODO
+	VkDeviceCreateInfo dev_cr_inf = {
+		//sType
+		VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		//pNext
+		nullptr,
+		//flags
+		0,
+		//desired queue_families
+		static_cast<uint32_t>( queue_create_infos.size() ),
+		queue_create_infos.size() > 0 ? &queue_create_infos[0] : nullptr,
+		//VulkanLayers
+		0,
+		nullptr,
+		//desired extensions
+		static_cast<uint32_t>( settings.desired_device_extensions.size() ),
+		settings.desired_device_extensions.size() > 0 ? &settings.desired_device_extensions[0] : nullptr,
+		//Desired features
+		{},
+	};
+
+	device = make_shared<VkDevice>();
+	throwonerror( vkCreateDevice( phys_dev, &dev_cr_inf, nullptr, device.get() ), "Could not create logical vulkan device", VK_SUCCESS );
 }
 
 void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){

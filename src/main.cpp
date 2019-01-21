@@ -30,7 +30,9 @@ int main( int argc, char** argv ){
 			//Instance Extensions
 			vector<const char*> {},
 			//Device Extensions
-			vector<const char*> {},
+			vector<const char*> {
+				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+			},
 		};
 
 		unique_ptr<VulkanDevice> vulkan_device( new VulkanDevice( main_window_settings ));

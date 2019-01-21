@@ -29,6 +29,7 @@ namespace Shooter{
 				std::vector<const char*> active_extensions;
 				GLFWwindow* glfw_window;
 				std::shared_ptr<VkInstance> instance;
+				std::shared_ptr<VkDevice> device;
 				std::shared_ptr<VkSurfaceKHR> surface;
 			private:
 				//Returns all avaible extensions out of desired and (if set to true) also the extensions required by glfw
@@ -40,7 +41,7 @@ namespace Shooter{
 				//Finds a Physical device suitable for rendering
 				void selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev );
 				//Returns all needed QueueFamilies
-				void getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev );
+				void getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev, std::vector<VkDeviceQueueCreateInfo>& create_infos );
 		};
 	}
 }
