@@ -45,10 +45,37 @@ VulkanDevice::~VulkanDevice(){
 		vkDestroyInstance( *instance, nullptr );
 }
 
-static void checkPresentMode( VkPresentModeKHR& present_mode ){}
-static void checkNumImages( uint32_t& num_img ){}
-static void checkSurfaceFormat( VkSurfaceFormatKHR& format ){}
-static void checkImageSize( VkExtent2D& format ){}
+void VulkanDevice::checkPresentMode( VkPresentModeKHR& present_mode ){
+	uint32_t present_mode_count;
+
+	throwonerror( vkGetPhysicalDeviceSurfacePresentModesKHR( phys_dev, *surface, &present_mode_count, nullptr ), "Could not get avaible presentmodes", VK_SUCCESS );
+	
+	vector<VkPresentModeKHR> present_modes( present_mode_count );
+
+	throwonerror( vkGetPhysicalDeviceSurfacePresentModesKHR( phys_dev, *surface, &present_mode_count, &present_modes[0] ), "Could not get avaible presentmodes", VK_SUCCESS );
+
+	if( present_mode_count == 0 )
+		throw new runtime_error( "Could not find any presentmodes" );
+
+	for( auto& mode: present_modes ){
+		if( mode == present_mode )
+			return;
+	}
+
+	cout << "Warning: Falling back to FIFO present-mode since the targeted one is not avaible\n";
+
+	for( auto& mode: present_modes ){
+		if( ( present_mode = mode ) == VK_PRESENT_MODE_FIFO_KHR )
+			return;
+	}
+
+	throw new runtime_error( "Could not get FIFO presentmode. This should never happen. Please check your graphics driver and vulkan installation." );
+}
+
+
+void VulkanDevice::checkNumImages( uint32_t& num_img ){}
+void VulkanDevice::checkSurfaceFormat( VkSurfaceFormatKHR& format ){}
+void VulkanDevice::checkImageSize( VkExtent2D& format ){}
 
 void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_settings ){
 	InitSwapchainSettings settings( desired_settings );
@@ -126,19 +153,7 @@ void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhy
 				break;
 		}
 
-		vector<float> priorities = { 1 };
-
 		indices.push_back( queue_family_index );
-
-		/*create_infos.push_back( {
-			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-			nullptr,
-			0,
-			queue_family_index,
-			static_cast<uint32_t>( priorities.size() ),
-			priorities.size() > 0 ? &priorities[0] : nullptr,
-		} );
-		*/
 	}
 
 	VkQueueFlags all_queue_flags[] = { VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_SPARSE_BINDING_BIT };
@@ -157,16 +172,15 @@ void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhy
 	indices.erase( last, indices.end() );
 
 	//TODO use better priorities than max
-	vector<float> priorities = { 1 };
-
 	for( size_t i = 0; i < indices.size(); ++i ){
+		float priorities[] = { 1.0f };
 		create_infos.push_back( {
 			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 			nullptr,
 			0,
 			indices[i],
-			static_cast<uint32_t>( priorities.size() ),
-			priorities.size() > 0 ? &priorities[0] : nullptr,
+			static_cast<uint32_t>( 1 ),
+			priorities,
 		} );
 	}
 }
@@ -197,6 +211,8 @@ void VulkanDevice::createDevice( const InitSettings& settings ){
 		//Desired features
 		{},
 	};
+
+	this->phys_dev = phys_dev;
 
 	device = make_unique<VkDevice>();
 	throwonerror( vkCreateDevice( phys_dev, &dev_cr_inf, nullptr, device.get() ), "Could not create logical vulkan device", VK_SUCCESS );

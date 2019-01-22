@@ -46,6 +46,7 @@ namespace Shooter{
 				std::vector<const char*> active_extensions;
 				GLFWwindow* glfw_window;
 				std::shared_ptr<VkInstance> instance;
+				VkPhysicalDevice phys_dev;
 				std::unique_ptr<VkDevice> device;
 				std::shared_ptr<VkSurfaceKHR> surface;
 			private:
@@ -60,6 +61,11 @@ namespace Shooter{
 				//Returns all needed QueueFamilies
 				void getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev, std::vector<VkDeviceQueueCreateInfo>& create_infos );
 				void createSwapchain( const InitSwapchainSettings& desired_settings );
+
+				void checkPresentMode( VkPresentModeKHR& );
+				void checkNumImages( uint32_t& );
+				void checkSurfaceFormat( VkSurfaceFormatKHR& );
+				void checkImageSize( VkExtent2D& );
 		};
 	}
 }
