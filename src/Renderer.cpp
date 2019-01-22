@@ -44,8 +44,18 @@ VulkanDevice::~VulkanDevice(){
 		vkDestroyInstance( *instance, nullptr );
 }
 
-void VulkanDevice::createSwapchain( const InitSwapchainSettings& settings ){
-	
+static void checkPresentMode( VkPresentModeKHR& present_mode ){}
+static void checkNumImages( uint32_t& num_img ){}
+static void checkSurfaceFormat( VkSurfaceFormatKHR& format ){}
+static void checkImageSize( VkExtent2D& format ){}
+
+void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_settings ){
+	InitSwapchainSettings settings( desired_settings );
+
+	checkPresentMode( settings.desired_present_mode );
+	checkNumImages( settings.desired_num_images );
+	checkSurfaceFormat( settings.desired_format );
+	checkImageSize( settings.desired_img_size );
 }
 
 void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev ){

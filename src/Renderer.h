@@ -11,10 +11,11 @@ namespace Shooter{
 		struct InitSwapchainSettings{
 			VkPresentModeKHR desired_present_mode;
 			uint32_t desired_num_images;
-			VkSurfaceFormatKHR format;
-			VkExtent2D img_size;
+			VkSurfaceFormatKHR desired_format;
+			VkExtent2D desired_img_size;
 			VkImageUsageFlags flags;
 			VkSurfaceTransformFlagBitsKHR transform_flags;
+			//Probably VK_NULL_HANDLE
 			VkSwapchainKHR old_swapchain;
 		};
 
@@ -54,7 +55,7 @@ namespace Shooter{
 				void selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev );
 				//Returns all needed QueueFamilies
 				void getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev, std::vector<VkDeviceQueueCreateInfo>& create_infos );
-				void createSwapchain( const InitSwapchainSettings& settings );
+				void createSwapchain( const InitSwapchainSettings& desired_settings );
 		};
 	}
 }

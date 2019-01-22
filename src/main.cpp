@@ -27,7 +27,7 @@ int main( int argc, char** argv ){
 			{ width, height },
 			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 			VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
-			nullptr,
+			VK_NULL_HANDLE,
 		};
 
 		InitSettings main_window_settings = {
