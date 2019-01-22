@@ -43,6 +43,10 @@ int main( int argc, char** argv ){
 			vector<const char*> {
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 			},
+			//Require presentable queue-family
+			true,
+			//Queue-flags
+			VK_QUEUE_GRAPHICS_BIT,
 			&swapchain_settings,
 		};
 

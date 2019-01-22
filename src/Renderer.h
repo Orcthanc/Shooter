@@ -29,6 +29,10 @@ namespace Shooter{
 			//Extensions to be loaded
 			std::vector<const char*> desired_instance_extensions;
 			std::vector<const char*> desired_device_extensions;
+			//Require a presentable queue-family? May be set to false if the device is only used for background calculations
+			bool require_presentable_queue;
+			//Required queue capabilities (Bitfield) (There may be more than one queue family used to fullfill requirements)
+			VkQueueFlags required_queue_flags;
 			//Null if no swapchain is needed, else the swapchain-settings
 			InitSwapchainSettings* swapchain_settings;
 		};

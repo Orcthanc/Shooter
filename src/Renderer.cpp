@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <iostream>
 
@@ -111,26 +112,63 @@ void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhy
 	if( properties.size() == 0 || queue_family_count == 0 )
 		throw std::runtime_error( "Could not get Queue Family Properties for any Family" );
 
-	uint32_t queue_family_index = 0;
+	vector<uint32_t> indices;
 
-	for( ; queue_family_index < properties.size(); ++queue_family_index ){
-		VkBool32 surface_presentation_support = VK_FALSE;
-		VkResult res = vkGetPhysicalDeviceSurfaceSupportKHR( phys_dev, queue_family_index, *surface, &surface_presentation_support );
+	if( settings.require_presentable_queue ){
 
-		if( res == VK_SUCCESS && surface_presentation_support == VK_TRUE )
-			break;
+		uint32_t queue_family_index = 0;
+
+		for( ; queue_family_index < properties.size(); ++queue_family_index ){
+			VkBool32 surface_presentation_support = VK_FALSE;
+			VkResult res = vkGetPhysicalDeviceSurfaceSupportKHR( phys_dev, queue_family_index, *surface, &surface_presentation_support );
+
+			if( res == VK_SUCCESS && surface_presentation_support == VK_TRUE )
+				break;
+		}
+
+		vector<float> priorities = { 1 };
+
+		indices.push_back( queue_family_index );
+
+		/*create_infos.push_back( {
+			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			nullptr,
+			0,
+			queue_family_index,
+			static_cast<uint32_t>( priorities.size() ),
+			priorities.size() > 0 ? &priorities[0] : nullptr,
+		} );
+		*/
 	}
 
+	VkQueueFlags all_queue_flags[] = { VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_SPARSE_BINDING_BIT };
+
+	for( uint8_t i = 0; i < 4; ++i ){
+		for( uint32_t j = 0; j < static_cast<uint32_t>( properties.size() ); ++j ){
+			if( properties[j].queueCount > 0 && ( properties[j].queueFlags & settings.required_queue_flags & all_queue_flags[i] )){
+				indices.push_back( j );
+				break;
+			}
+		}
+	}
+
+	sort( indices.begin(), indices.end() );
+	auto last = unique( indices.begin(), indices.end() );
+	indices.erase( last, indices.end() );
+
+	//TODO use better priorities than max
 	vector<float> priorities = { 1 };
 
-	create_infos.push_back( {
-		VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-		nullptr,
-		0,
-		queue_family_index,
-		static_cast<uint32_t>( priorities.size() ),
-		priorities.size() > 0 ? &priorities[0] : nullptr,
-	} );
+	for( size_t i = 0; i < indices.size(); ++i ){
+		create_infos.push_back( {
+			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			nullptr,
+			0,
+			indices[i],
+			static_cast<uint32_t>( priorities.size() ),
+			priorities.size() > 0 ? &priorities[0] : nullptr,
+		} );
+	}
 }
 
 void VulkanDevice::createDevice( const InitSettings& settings ){
