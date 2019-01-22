@@ -73,12 +73,18 @@ void VulkanDevice::checkPresentMode( VkPresentModeKHR& present_mode ){
 }
 
 
-void VulkanDevice::checkNumImages( uint32_t& num_img ){}
+void VulkanDevice::checkNumImages( uint32_t& num_img ){
+	
+}
 void VulkanDevice::checkSurfaceFormat( VkSurfaceFormatKHR& format ){}
 void VulkanDevice::checkImageSize( VkExtent2D& format ){}
 
 void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_settings ){
 	InitSwapchainSettings settings( desired_settings );
+
+	VkSurfaceCapabilitiesKHR surface_capabilities;
+
+	throwonerror( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( phys_dev, *surface, &surface_capabilities ), "Could not get surface-capabilities", VK_SUCCESS );
 
 	checkPresentMode( settings.desired_present_mode );
 	checkNumImages( settings.desired_num_images );
