@@ -79,7 +79,14 @@ void VulkanDevice::checkNumImages( uint32_t& num_img, const VkSurfaceCapabilitie
 }
 
 void VulkanDevice::checkSurfaceFormat( VkSurfaceFormatKHR& format ){}
-void VulkanDevice::checkImageSize( VkExtent2D& format ){}
+void VulkanDevice::checkImageSize( VkExtent2D& format, const VkSurfaceCapabilitiesKHR& capa ){
+	if( 0xFFFFFFFF == capa.currentExtent.width ){
+		format.width = MIN( capa.maxImageExtent.width, MAX( capa.minImageExtent.width, format.width ));
+		format.height = MIN( capa.maxImageExtent.height, MAX( capa.minImageExtent.height, format.height ));
+	}else {
+		format = capa.currentExtent;
+	}
+}
 
 void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_settings ){
 	InitSwapchainSettings settings( desired_settings );
@@ -91,7 +98,7 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 	checkPresentMode( settings.desired_present_mode );
 	checkNumImages( settings.desired_num_images, surface_capabilities );
 	checkSurfaceFormat( settings.desired_format );
-	checkImageSize( settings.desired_img_size );
+	checkImageSize( settings.desired_img_size, surface_capabilities );
 }
 
 void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev ){

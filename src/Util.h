@@ -3,6 +3,8 @@
 #include <memory>
 
 #define NAME "Shooter"
+#define MIN( a, b ) ((a) < (b) ? (a) : (b))
+#define MAX( a, b ) ((a) > (b) ? (a) : (b))
 
 extern uint16_t width, height;
 

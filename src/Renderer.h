@@ -65,7 +65,7 @@ namespace Shooter{
 				void checkPresentMode( VkPresentModeKHR& );
 				void checkNumImages( uint32_t&, const VkSurfaceCapabilitiesKHR& );
 				void checkSurfaceFormat( VkSurfaceFormatKHR& );
-				void checkImageSize( VkExtent2D& );
+				void checkImageSize( VkExtent2D&, const VkSurfaceCapabilitiesKHR& );
 		};
 	}
 }
