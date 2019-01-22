@@ -39,6 +39,11 @@ VulkanDevice::VulkanDevice( const InitSettings& settings ){
 }
 
 VulkanDevice::~VulkanDevice(){
+	if( *swapchain != VK_NULL_HANDLE ){
+		vkDestroySwapchainKHR( *device, *swapchain, nullptr );
+		*swapchain = VK_NULL_HANDLE;
+	}
+
 	vkDestroyDevice( *device, nullptr );
 
 	if( instance.use_count() == 1 )
@@ -75,10 +80,42 @@ void VulkanDevice::checkPresentMode( VkPresentModeKHR& present_mode ){
 
 void VulkanDevice::checkNumImages( uint32_t& num_img, const VkSurfaceCapabilitiesKHR& capa ){
 	num_img = capa.minImageCount > num_img ? capa.minImageCount : num_img;
-	num_img = capa.maxImageCount < num_img ? capa.maxImageCount : num_img;
+	if( capa.maxImageCount > 0 )
+		num_img = capa.maxImageCount < num_img ? capa.maxImageCount : num_img;
 }
 
-void VulkanDevice::checkSurfaceFormat( VkSurfaceFormatKHR& format ){}
+void VulkanDevice::checkSurfaceFormat( VkSurfaceFormatKHR& format ){
+	uint32_t formats_count;
+
+	throwonerror( vkGetPhysicalDeviceSurfaceFormatsKHR( phys_dev, *surface, &formats_count, nullptr ), "Could not get surface formats", VK_SUCCESS );
+
+	vector<VkSurfaceFormatKHR> formats( formats_count );
+
+	throwonerror( vkGetPhysicalDeviceSurfaceFormatsKHR( phys_dev, *surface, &formats_count, &formats[0] ), "Could not get surface formats", VK_SUCCESS );
+
+	if( formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED )
+		return;
+
+	for( auto& f: formats ){
+		if( f.format == format.format && f.colorSpace == format.colorSpace )
+			return;
+	}
+
+	cout << "Warning: Falling back to a random colorspace.\n";
+
+	for( auto& f: formats ){
+		if( f.format == format.format ){
+			format.colorSpace = f.colorSpace;
+			return;
+		}
+	}
+
+	cout << "Warning: Falling back to a random format.\n";
+
+	format.format = formats[0].format;
+	format.colorSpace = formats[0].colorSpace;
+}
+
 void VulkanDevice::checkImageSize( VkExtent2D& format, const VkSurfaceCapabilitiesKHR& capa ){
 	if( 0xFFFFFFFF == capa.currentExtent.width ){
 		format.width = MIN( capa.maxImageExtent.width, MAX( capa.minImageExtent.width, format.width ));
@@ -99,6 +136,57 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 	checkNumImages( settings.desired_num_images, surface_capabilities );
 	checkSurfaceFormat( settings.desired_format );
 	checkImageSize( settings.desired_img_size, surface_capabilities );
+
+	VkSwapchainCreateInfoKHR swapchain_create_info = {
+		//sType
+		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		//pNext
+		nullptr,
+		//flags
+		0,
+		//surface
+		*surface,
+		//minImageCount
+		settings.desired_num_images,
+		//imageFormat
+		settings.desired_format.format,
+		//imageColorSpace
+		settings.desired_format.colorSpace,
+		//imageExtent
+		settings.desired_img_size,
+		//imageArrayLayers (for layered/stereoscopic rendering)
+		1,
+		//image usage flags
+		settings.flags,
+		//imageSharingMode
+		VK_SHARING_MODE_EXCLUSIVE,
+		//queueFamilyIndexCount
+		0,
+		//pQueueFamilyIndices
+		nullptr,
+		//preTransform
+		settings.transform_flags,
+		//compositeAlpha
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		//presentMode
+		settings.desired_present_mode,
+		//clipped
+		VK_TRUE,
+		//oldSwapchain
+		settings.old_swapchain,
+	};
+
+	swapchain = make_unique<VkSwapchainKHR>();
+
+	throwonerror( vkCreateSwapchainKHR( *device, &swapchain_create_info, nullptr, swapchain.get() ), "Could not create swapchain", VK_SUCCESS );
+
+	if( swapchain == VK_NULL_HANDLE )
+		throw new runtime_error( "Could not create swapchain" );
+
+	if( settings.old_swapchain != VK_NULL_HANDLE ){
+		vkDestroySwapchainKHR( *device, settings.old_swapchain, nullptr );
+		settings.old_swapchain = VK_NULL_HANDLE;
+	}
 }
 
 void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev ){

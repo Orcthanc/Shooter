@@ -48,6 +48,7 @@ namespace Shooter{
 				std::shared_ptr<VkInstance> instance;
 				VkPhysicalDevice phys_dev;
 				std::unique_ptr<VkDevice> device;
+				std::unique_ptr<VkSwapchainKHR> swapchain;
 				std::shared_ptr<VkSurfaceKHR> surface;
 			private:
 				//Returns all avaible extensions out of desired and (if set to true) also the extensions required by glfw
