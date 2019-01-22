@@ -49,7 +49,7 @@ void VulkanDevice::checkPresentMode( VkPresentModeKHR& present_mode ){
 	uint32_t present_mode_count;
 
 	throwonerror( vkGetPhysicalDeviceSurfacePresentModesKHR( phys_dev, *surface, &present_mode_count, nullptr ), "Could not get avaible presentmodes", VK_SUCCESS );
-	
+
 	vector<VkPresentModeKHR> present_modes( present_mode_count );
 
 	throwonerror( vkGetPhysicalDeviceSurfacePresentModesKHR( phys_dev, *surface, &present_mode_count, &present_modes[0] ), "Could not get avaible presentmodes", VK_SUCCESS );
@@ -73,9 +73,11 @@ void VulkanDevice::checkPresentMode( VkPresentModeKHR& present_mode ){
 }
 
 
-void VulkanDevice::checkNumImages( uint32_t& num_img ){
-	
+void VulkanDevice::checkNumImages( uint32_t& num_img, const VkSurfaceCapabilitiesKHR& capa ){
+	num_img = capa.minImageCount > num_img ? capa.minImageCount : num_img;
+	num_img = capa.maxImageCount < num_img ? capa.maxImageCount : num_img;
 }
+
 void VulkanDevice::checkSurfaceFormat( VkSurfaceFormatKHR& format ){}
 void VulkanDevice::checkImageSize( VkExtent2D& format ){}
 
@@ -87,7 +89,7 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 	throwonerror( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( phys_dev, *surface, &surface_capabilities ), "Could not get surface-capabilities", VK_SUCCESS );
 
 	checkPresentMode( settings.desired_present_mode );
-	checkNumImages( settings.desired_num_images );
+	checkNumImages( settings.desired_num_images, surface_capabilities );
 	checkSurfaceFormat( settings.desired_format );
 	checkImageSize( settings.desired_img_size );
 }

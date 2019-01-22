@@ -63,7 +63,7 @@ namespace Shooter{
 				void createSwapchain( const InitSwapchainSettings& desired_settings );
 
 				void checkPresentMode( VkPresentModeKHR& );
-				void checkNumImages( uint32_t& );
+				void checkNumImages( uint32_t&, const VkSurfaceCapabilitiesKHR& );
 				void checkSurfaceFormat( VkSurfaceFormatKHR& );
 				void checkImageSize( VkExtent2D& );
 		};
