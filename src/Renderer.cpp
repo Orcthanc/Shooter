@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <map>
 
 using namespace std;
 using namespace Shooter::Renderer;
@@ -200,7 +201,11 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 	uint32_t desired_device_index = 0;
 	bool extensions_supported;
 
+	multimap<int, VkPhysicalDevice> device_scores;
+
 	for( ;desired_device_index < device_amount; ++desired_device_index ){
+		int score = 0;
+
 		VkPhysicalDeviceFeatures features;
 		VkPhysicalDeviceProperties properties;
 
@@ -222,13 +227,21 @@ void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysica
 			if( !ext_supported( avaible_device_extensions, ext ))
 				extensions_supported = false;
 		}
-		if( extensions_supported )
-			break;
+		if( !extensions_supported )
+			continue;
+
+		if( properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU )
+			score += 1000;
+
+		score += properties.limits.maxImageDimension2D;
+
+		device_scores.insert( make_pair( score, devices[desired_device_index] ));
 	}
 
-	throwonerror( extensions_supported, "Could not find a physical vulkan device (Graphics Card) with the required extensions" );
+	if( device_scores.rbegin()->first == 0 )
+		throw runtime_error( "Could not find a suitable GPU" );
 
-	phys_dev = devices[desired_device_index];
+	phys_dev = device_scores.rbegin()->second;
 }
 
 void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhysicalDevice& phys_dev, vector<VkDeviceQueueCreateInfo>& create_infos ){
