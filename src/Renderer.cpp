@@ -186,6 +186,13 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 		vkDestroySwapchainKHR( device, swapchain_info.old_swapchain, nullptr );
 		swapchain_info.old_swapchain = VK_NULL_HANDLE;
 	}
+
+	uint32_t swapchain_img_count;
+
+	vkGetSwapchainImagesKHR( device, swapchain, &swapchain_img_count, nullptr );
+	swapchain_imgs.resize( swapchain_img_count );
+
+	vkGetSwapchainImagesKHR( device, swapchain, &swapchain_img_count, &swapchain_imgs[0] );
 }
 
 void VulkanDevice::selectPhysicalDevice( const InitSettings& settings, VkPhysicalDevice& phys_dev ){
@@ -285,7 +292,7 @@ void VulkanDevice::getRequiredQueueFamilies( const InitSettings& settings, VkPhy
 	auto last = unique( indices.begin(), indices.end() );
 	indices.erase( last, indices.end() );
 
-	//TODO use better priorities than max
+	//TODO? use better priorities than max
 	for( size_t i = 0; i < indices.size(); ++i ){
 		float priorities[] = { 1.0f };
 		create_infos.push_back( {

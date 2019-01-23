@@ -52,6 +52,7 @@ namespace Shooter{
 				//In case the swapchain needs to be recreated (Window resize, ...)
 				InitSwapchainSettings swapchain_info;
 				std::shared_ptr<VkSurfaceKHR> surface;
+				std::vector<VkImage> swapchain_imgs;
 			private:
 				//Returns all avaible extensions out of desired and (if set to true) also the extensions required by glfw
 				std::vector<const char*> getAvaibleExtensions( std::vector<const char*> desired, bool addGLFWRequired );
