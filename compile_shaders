@@ -1,0 +1,4 @@
+#!/bin/bash
+mkdir -p build/res/shader/test1
+glslangValidator -V shader/test1/shader.vert -o build/res/shader/test1/vert.spv
+glslangValidator -V shader/test1/shader.frag -o build/res/shader/test1/frag.spv
