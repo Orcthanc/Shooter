@@ -35,11 +35,17 @@ VulkanDevice::VulkanDevice( const InitSettings& settings ){
 
 	createDevice( settings );
 
-	if( settings.swapchain_settings )
+	if( settings.swapchain_settings ){
 		createSwapchain( *settings.swapchain_settings );
+		createImageViews();
+	}
 }
 
 VulkanDevice::~VulkanDevice(){
+	for( auto& img_view: swapchain_img_views ){
+		vkDestroyImageView( device, img_view, nullptr );
+	}
+
 	if( swapchain != VK_NULL_HANDLE ){
 		vkDestroySwapchainKHR( device, swapchain, nullptr );
 		swapchain = VK_NULL_HANDLE;
@@ -49,6 +55,53 @@ VulkanDevice::~VulkanDevice(){
 
 	if( instance.use_count() == 1 )
 		vkDestroyInstance( *instance, nullptr );
+}
+
+void VulkanDevice::createImageViews(){
+	swapchain_img_views.resize( swapchain_imgs.size() );
+
+	for( size_t i = 0; i < swapchain_imgs.size(); ++i ){
+		VkImageViewCreateInfo info = {
+			//sType
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+			//pNext
+			nullptr,
+			//flags
+			0,
+			//image
+			swapchain_imgs[i],
+			//Image type (e.g. 1D, 2D, 3D, cubemap)
+			VK_IMAGE_VIEW_TYPE_2D,
+			//format
+			swapchain_info.desired_format.format,
+			//components (swizzle colorchannels)
+			{
+				//r
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				//g
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				//b
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+				//a
+				VK_COMPONENT_SWIZZLE_IDENTITY,
+			},
+			//subresource-range (mipmaps, ...)
+			{
+				//image aspect mask
+				VK_IMAGE_ASPECT_COLOR_BIT,
+				//mipmap level
+				0,
+				//level count
+				1,
+				//array-layers
+				0,
+				//layer-count
+				1,
+			},
+		};
+
+		throwonerror( vkCreateImageView( device, &info, nullptr, &swapchain_img_views[i] ), "Could not create an image view", VK_SUCCESS );
+	}
 }
 
 void VulkanDevice::checkPresentMode( VkPresentModeKHR& present_mode ){

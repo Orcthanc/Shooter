@@ -53,6 +53,7 @@ namespace Shooter{
 				InitSwapchainSettings swapchain_info;
 				std::shared_ptr<VkSurfaceKHR> surface;
 				std::vector<VkImage> swapchain_imgs;
+				std::vector<VkImageView> swapchain_img_views;
 			private:
 				//Returns all avaible extensions out of desired and (if set to true) also the extensions required by glfw
 				std::vector<const char*> getAvaibleExtensions( std::vector<const char*> desired, bool addGLFWRequired );
@@ -70,6 +71,7 @@ namespace Shooter{
 				void checkNumImages( uint32_t&, const VkSurfaceCapabilitiesKHR& );
 				void checkSurfaceFormat( VkSurfaceFormatKHR& );
 				void checkImageSize( VkExtent2D&, const VkSurfaceCapabilitiesKHR& );
+				void createImageViews();
 		};
 	}
 }
