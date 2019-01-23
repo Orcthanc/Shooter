@@ -60,7 +60,7 @@ void VulkanDevice::checkPresentMode( VkPresentModeKHR& present_mode ){
 	throwonerror( vkGetPhysicalDeviceSurfacePresentModesKHR( phys_dev, *surface, &present_mode_count, &present_modes[0] ), "Could not get avaible presentmodes", VK_SUCCESS );
 
 	if( present_mode_count == 0 )
-		throw new runtime_error( "Could not find any presentmodes" );
+		throw runtime_error( "Could not find any presentmodes" );
 
 	for( auto& mode: present_modes ){
 		if( mode == present_mode )
@@ -74,7 +74,7 @@ void VulkanDevice::checkPresentMode( VkPresentModeKHR& present_mode ){
 			return;
 	}
 
-	throw new runtime_error( "Could not get FIFO presentmode. This should never happen. Please check your graphics driver and vulkan installation." );
+	throw runtime_error( "Could not get FIFO presentmode. This should never happen. Please check your graphics driver and vulkan installation." );
 }
 
 
@@ -181,7 +181,7 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 	throwonerror( vkCreateSwapchainKHR( *device, &swapchain_create_info, nullptr, swapchain.get() ), "Could not create swapchain", VK_SUCCESS );
 
 	if( swapchain == VK_NULL_HANDLE )
-		throw new runtime_error( "Could not create swapchain" );
+		throw runtime_error( "Could not create swapchain" );
 
 	if( settings.old_swapchain != VK_NULL_HANDLE ){
 		vkDestroySwapchainKHR( *device, settings.old_swapchain, nullptr );
