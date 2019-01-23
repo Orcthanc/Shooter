@@ -49,6 +49,8 @@ namespace Shooter{
 				VkPhysicalDevice phys_dev;
 				std::unique_ptr<VkDevice> device;
 				std::unique_ptr<VkSwapchainKHR> swapchain;
+				//In case the swapchain needs to be recreated (Window resize, ...)
+				std::unique_ptr<InitSwapchainSettings> swapchain_info;
 				std::shared_ptr<VkSurfaceKHR> surface;
 			private:
 				//Returns all avaible extensions out of desired and (if set to true) also the extensions required by glfw

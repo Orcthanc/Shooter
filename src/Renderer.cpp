@@ -127,16 +127,16 @@ void VulkanDevice::checkImageSize( VkExtent2D& format, const VkSurfaceCapabiliti
 }
 
 void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_settings ){
-	InitSwapchainSettings settings( desired_settings );
+	swapchain_info.reset( new InitSwapchainSettings( desired_settings ));
 
 	VkSurfaceCapabilitiesKHR surface_capabilities;
 
 	throwonerror( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( phys_dev, *surface, &surface_capabilities ), "Could not get surface-capabilities", VK_SUCCESS );
 
-	checkPresentMode( settings.desired_present_mode );
-	checkNumImages( settings.desired_num_images, surface_capabilities );
-	checkSurfaceFormat( settings.desired_format );
-	checkImageSize( settings.desired_img_size, surface_capabilities );
+	checkPresentMode( swapchain_info->desired_present_mode );
+	checkNumImages( swapchain_info->desired_num_images, surface_capabilities );
+	checkSurfaceFormat( swapchain_info->desired_format );
+	checkImageSize( swapchain_info->desired_img_size, surface_capabilities );
 
 	VkSwapchainCreateInfoKHR swapchain_create_info = {
 		//sType
@@ -148,33 +148,33 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 		//surface
 		*surface,
 		//minImageCount
-		settings.desired_num_images,
+		swapchain_info->desired_num_images,
 		//imageFormat
-		settings.desired_format.format,
+		swapchain_info->desired_format.format,
 		//imageColorSpace
-		settings.desired_format.colorSpace,
+		swapchain_info->desired_format.colorSpace,
 		//imageExtent
-		settings.desired_img_size,
+		swapchain_info->desired_img_size,
 		//imageArrayLayers (for layered/stereoscopic rendering)
 		1,
 		//image usage flags
-		settings.flags,
-		//imageSharingMode
+		swapchain_info->flags,
+		//imageSharingMode (EXCLUSIVE = nonparallel) (Concurrent requires at least 2 queue-families)
 		VK_SHARING_MODE_EXCLUSIVE,
 		//queueFamilyIndexCount
 		0,
 		//pQueueFamilyIndices
 		nullptr,
 		//preTransform
-		settings.transform_flags,
-		//compositeAlpha
+		swapchain_info->transform_flags,
+		//compositeAlpha (currently ignore alpha)
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 		//presentMode
-		settings.desired_present_mode,
-		//clipped
+		swapchain_info->desired_present_mode,
+		//clipped (True = don't draw things obscures by other windows in the windowing system)
 		VK_TRUE,
 		//oldSwapchain
-		settings.old_swapchain,
+		swapchain_info->old_swapchain,
 	};
 
 	swapchain = make_unique<VkSwapchainKHR>();
@@ -184,9 +184,9 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 	if( swapchain == VK_NULL_HANDLE )
 		throw runtime_error( "Could not create swapchain" );
 
-	if( settings.old_swapchain != VK_NULL_HANDLE ){
-		vkDestroySwapchainKHR( *device, settings.old_swapchain, nullptr );
-		settings.old_swapchain = VK_NULL_HANDLE;
+	if( swapchain_info->old_swapchain != VK_NULL_HANDLE ){
+		vkDestroySwapchainKHR( *device, swapchain_info->old_swapchain, nullptr );
+		swapchain_info->old_swapchain = VK_NULL_HANDLE;
 	}
 }
 
