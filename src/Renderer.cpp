@@ -40,12 +40,12 @@ VulkanDevice::VulkanDevice( const InitSettings& settings ){
 }
 
 VulkanDevice::~VulkanDevice(){
-	if( *swapchain != VK_NULL_HANDLE ){
-		vkDestroySwapchainKHR( *device, *swapchain, nullptr );
-		*swapchain = VK_NULL_HANDLE;
+	if( swapchain != VK_NULL_HANDLE ){
+		vkDestroySwapchainKHR( device, swapchain, nullptr );
+		swapchain = VK_NULL_HANDLE;
 	}
 
-	vkDestroyDevice( *device, nullptr );
+	vkDestroyDevice( device, nullptr );
 
 	if( instance.use_count() == 1 )
 		vkDestroyInstance( *instance, nullptr );
@@ -127,16 +127,16 @@ void VulkanDevice::checkImageSize( VkExtent2D& format, const VkSurfaceCapabiliti
 }
 
 void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_settings ){
-	swapchain_info.reset( new InitSwapchainSettings( desired_settings ));
+	swapchain_info = InitSwapchainSettings( desired_settings );
 
 	VkSurfaceCapabilitiesKHR surface_capabilities;
 
 	throwonerror( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( phys_dev, *surface, &surface_capabilities ), "Could not get surface-capabilities", VK_SUCCESS );
 
-	checkPresentMode( swapchain_info->desired_present_mode );
-	checkNumImages( swapchain_info->desired_num_images, surface_capabilities );
-	checkSurfaceFormat( swapchain_info->desired_format );
-	checkImageSize( swapchain_info->desired_img_size, surface_capabilities );
+	checkPresentMode( swapchain_info.desired_present_mode );
+	checkNumImages( swapchain_info.desired_num_images, surface_capabilities );
+	checkSurfaceFormat( swapchain_info.desired_format );
+	checkImageSize( swapchain_info.desired_img_size, surface_capabilities );
 
 	VkSwapchainCreateInfoKHR swapchain_create_info = {
 		//sType
@@ -148,17 +148,17 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 		//surface
 		*surface,
 		//minImageCount
-		swapchain_info->desired_num_images,
+		swapchain_info.desired_num_images,
 		//imageFormat
-		swapchain_info->desired_format.format,
+		swapchain_info.desired_format.format,
 		//imageColorSpace
-		swapchain_info->desired_format.colorSpace,
+		swapchain_info.desired_format.colorSpace,
 		//imageExtent
-		swapchain_info->desired_img_size,
+		swapchain_info.desired_img_size,
 		//imageArrayLayers (for layered/stereoscopic rendering)
 		1,
 		//image usage flags
-		swapchain_info->flags,
+		swapchain_info.flags,
 		//imageSharingMode (EXCLUSIVE = nonparallel) (Concurrent requires at least 2 queue-families)
 		VK_SHARING_MODE_EXCLUSIVE,
 		//queueFamilyIndexCount
@@ -166,27 +166,25 @@ void VulkanDevice::createSwapchain( const InitSwapchainSettings& desired_setting
 		//pQueueFamilyIndices
 		nullptr,
 		//preTransform
-		swapchain_info->transform_flags,
+		swapchain_info.transform_flags,
 		//compositeAlpha (currently ignore alpha)
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 		//presentMode
-		swapchain_info->desired_present_mode,
+		swapchain_info.desired_present_mode,
 		//clipped (True = don't draw things obscures by other windows in the windowing system)
 		VK_TRUE,
 		//oldSwapchain
-		swapchain_info->old_swapchain,
+		swapchain_info.old_swapchain,
 	};
 
-	swapchain = make_unique<VkSwapchainKHR>();
-
-	throwonerror( vkCreateSwapchainKHR( *device, &swapchain_create_info, nullptr, swapchain.get() ), "Could not create swapchain", VK_SUCCESS );
+	throwonerror( vkCreateSwapchainKHR( device, &swapchain_create_info, nullptr, &swapchain ), "Could not create swapchain", VK_SUCCESS );
 
 	if( swapchain == VK_NULL_HANDLE )
 		throw runtime_error( "Could not create swapchain" );
 
-	if( swapchain_info->old_swapchain != VK_NULL_HANDLE ){
-		vkDestroySwapchainKHR( *device, swapchain_info->old_swapchain, nullptr );
-		swapchain_info->old_swapchain = VK_NULL_HANDLE;
+	if( swapchain_info.old_swapchain != VK_NULL_HANDLE ){
+		vkDestroySwapchainKHR( device, swapchain_info.old_swapchain, nullptr );
+		swapchain_info.old_swapchain = VK_NULL_HANDLE;
 	}
 }
 
@@ -330,8 +328,7 @@ void VulkanDevice::createDevice( const InitSettings& settings ){
 
 	this->phys_dev = phys_dev;
 
-	device = make_unique<VkDevice>();
-	throwonerror( vkCreateDevice( phys_dev, &dev_cr_inf, nullptr, device.get() ), "Could not create logical vulkan device", VK_SUCCESS );
+	throwonerror( vkCreateDevice( phys_dev, &dev_cr_inf, nullptr, &device ), "Could not create logical vulkan device", VK_SUCCESS );
 }
 
 void VulkanDevice::createInstance( const std::vector<const char*> desiredExts ){
