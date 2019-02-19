@@ -1,5 +1,6 @@
 #include "Util.h"
 #include "Renderer.h"
+#include "GraphicsPipeline.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -51,6 +52,9 @@ int main( int argc, char** argv ){
 		};
 
 		unique_ptr<VulkanDevice> vulkan_device( new VulkanDevice( main_window_settings ));
+
+		auto test = createShaderModule( vulkan_device->device, "res/shader/test1/vert.spv" );
+		(void) test;
 
         while (!glfwWindowShouldClose(window)) {
 
