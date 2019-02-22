@@ -37,7 +37,11 @@ namespace Shooter{
 				VkImageUsageFlags flags;
 				VkSurfaceTransformFlagBitsKHR transform_flags;
 			private:
-				
+				void checkPresentMode( VkPresentModeKHR& );
+				void checkNumImages( uint32_t&, const VkSurfaceCapabilitiesKHR& );
+				void checkSurfaceFormat( VkSurfaceFormatKHR& );
+				void checkImageSize( VkExtent2D&, const VkSurfaceCapabilitiesKHR& );
+				void createImageViews();
 		};
 	}
 }

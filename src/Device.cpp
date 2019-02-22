@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <map>
+#include <iostream>
 
 using namespace std;
 using namespace Shooter::Renderer;
@@ -49,6 +50,10 @@ VulkanDevice::VulkanDevice( const DeviceInitSettings& settings ){
 
 	throwonerror( vkCreateDevice( phys_dev, &dev_cr_inf, nullptr, &device ), "Could not create logical vulkan device", VK_SUCCESS );
 
+}
+
+VulkanDevice::~VulkanDevice(){
+	vkDestroyDevice( device, nullptr );
 }
 
 void VulkanDevice::getRequiredQueueFamilies( const DeviceInitSettings& settings, VkPhysicalDevice& phys_dev, vector<VkDeviceQueueCreateInfo>& create_infos ){
@@ -120,6 +125,7 @@ void VulkanDevice::selectPhysicalDevice( const DeviceInitSettings& settings, VkP
 	bool extensions_supported;
 
 	multimap<int, VkPhysicalDevice> device_scores;
+	device_scores.insert( make_pair<int, VkPhysicalDevice>( 0, VK_NULL_HANDLE ));
 
 	for( ;desired_device_index < device_amount; ++desired_device_index ){
 		int score = 0;
@@ -142,8 +148,10 @@ void VulkanDevice::selectPhysicalDevice( const DeviceInitSettings& settings, VkP
 		throwonerror( vkEnumerateDeviceExtensionProperties( devices[desired_device_index], nullptr, &avaible_ext_count, &avaible_device_extensions[0] ), "Could not get Extensions of a device", VK_SUCCESS );
 
 		for( auto& ext: settings.extensions ){
-			if( !ext_supported( avaible_device_extensions, ext ))
+			if( !ext_supported( avaible_device_extensions, ext )){
+				cout << ext << endl;
 				extensions_supported = false;
+			}
 		}
 		if( !extensions_supported )
 			continue;
