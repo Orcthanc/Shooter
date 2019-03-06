@@ -32,6 +32,8 @@ namespace Shooter{
 				VulkanPipeline( PipelineCreateInfo& );
 				~VulkanPipeline();
 
+				VkPipeline pipeline;
+
 			private:
 				std::shared_ptr<VulkanDevice> device;
 				std::shared_ptr<VulkanSwapchain> swapchain;
