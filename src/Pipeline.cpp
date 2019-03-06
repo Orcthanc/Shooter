@@ -207,12 +207,36 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
 
 	throwonerror( vkCreateGraphicsPipelines( device->device, VK_NULL_HANDLE, 1, &pipeline_cr_inf, nullptr, &pipeline ), "Failed to create Graphics pipeline", VK_SUCCESS );
 	
-	//Cleanup
+	//Cleanup shadermodules
 	for( auto& m: shader_modules )
 		vkDestroyShaderModule( device->device, m, nullptr );
+
+	//Create framebuffer
+	framebuffers.resize( swapchain->img_views.size() );
+	
+	for( size_t i = 0; i < swapchain->img_views.size(); i++ ){
+		VkImageView attachments[] = { swapchain->img_views[i] };
+
+		VkFramebufferCreateInfo fb_cr_inf = {
+			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+			nullptr,
+			0,
+			render_pass,
+			1,
+			attachments,
+			swapchain->img_size.width,
+			swapchain->img_size.height,
+			1
+		};
+
+		throwonerror( vkCreateFramebuffer( device->device, &fb_cr_inf, nullptr, &framebuffers[i] ), "Could not create framebuffer", VK_SUCCESS );
+	}
 }
 
 VulkanPipeline::~VulkanPipeline(){
+	for( auto fb: framebuffers )
+		vkDestroyFramebuffer( device->device, fb, nullptr );
+
 	vkDestroyPipeline( device->device, pipeline, nullptr );
 	vkDestroyPipelineLayout( device->device, pipeline_layout, nullptr );
 	vkDestroyRenderPass( device->device, render_pass, nullptr );

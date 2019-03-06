@@ -33,6 +33,7 @@ namespace Shooter{
 				~VulkanPipeline();
 
 				VkPipeline pipeline;
+				std::vector<VkFramebuffer> framebuffers;
 
 			private:
 				std::shared_ptr<VulkanDevice> device;
