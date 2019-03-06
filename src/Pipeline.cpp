@@ -3,6 +3,8 @@
 #include "PipelineShaderStage.h"
 #include "Util.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Shooter::Renderer;
 
@@ -181,6 +183,29 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
 	throwonerror( vkCreateRenderPass( device->device, &render_pass_info, nullptr, &render_pass ), "Could not create renderpass", VK_SUCCESS );
 	
 	//Creation
+	VkGraphicsPipelineCreateInfo pipeline_cr_inf = {
+		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+		nullptr,
+		0,
+		2,
+		&shader_stage_cr_infos[0],
+		&vertex_buffer_info,
+		&input_assembly_info,
+		nullptr,
+		&viewport_state,
+		&rasterization,
+		&multisampling,
+		nullptr,
+		&color_blending_info,
+		nullptr,
+		pipeline_layout,
+		render_pass,
+		0,
+		VK_NULL_HANDLE,
+		-1,
+	};
+
+	throwonerror( vkCreateGraphicsPipelines( device->device, VK_NULL_HANDLE, 1, &pipeline_cr_inf, nullptr, &pipeline ), "Failed to create Graphics pipeline", VK_SUCCESS );
 	
 	//Cleanup
 	for( auto& m: shader_modules )
@@ -188,6 +213,7 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
 }
 
 VulkanPipeline::~VulkanPipeline(){
+	vkDestroyPipeline( device->device, pipeline, nullptr );
 	vkDestroyPipelineLayout( device->device, pipeline_layout, nullptr );
 	vkDestroyRenderPass( device->device, render_pass, nullptr );
 }
