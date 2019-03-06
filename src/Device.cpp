@@ -58,7 +58,6 @@ VulkanDevice::~VulkanDevice(){
 
 void VulkanDevice::getRequiredQueueFamilies( const DeviceInitSettings& settings, VkPhysicalDevice& phys_dev, vector<VkDeviceQueueCreateInfo>& create_infos ){
 	uint32_t queue_family_count = 0;
-	vector<VkQueueFamilyProperties> properties;
 
 	vkGetPhysicalDeviceQueueFamilyProperties( phys_dev, &queue_family_count, nullptr );
 	properties.resize( queue_family_count );
@@ -111,6 +110,13 @@ void VulkanDevice::getRequiredQueueFamilies( const DeviceInitSettings& settings,
 			priorities,
 		} );
 	}
+}
+
+uint32_t VulkanDevice::getPhysicalDeviceQueueFamilyIndex( VkQueueFlagBits queue_type ){
+	for( uint32_t i = 0; i < static_cast<uint32_t>( properties.size() ); ++i )
+		if( properties[i].queueCount > 0 && ( properties[i].queueFlags & queue_type ))
+			return i;
+	return -1;
 }
 
 void VulkanDevice::selectPhysicalDevice( const DeviceInitSettings& settings, VkPhysicalDevice& phys_dev ){

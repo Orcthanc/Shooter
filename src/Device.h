@@ -22,12 +22,16 @@ namespace Shooter{
 				VulkanDevice( const DeviceInitSettings& );
 				~VulkanDevice();
 
+				uint32_t getPhysicalDeviceQueueFamilyIndex( VkQueueFlagBits queue_type );
+
 				VkDevice device;
 				VkPhysicalDevice phys_dev;
 				std::shared_ptr<VulkanInstance> instance;
 			private:
 				void getRequiredQueueFamilies( const DeviceInitSettings&, VkPhysicalDevice& phys_dev, std::vector<VkDeviceQueueCreateInfo>& create_infos );
 				void selectPhysicalDevice( const DeviceInitSettings&, VkPhysicalDevice& phys_dev );
+
+				std::vector<VkQueueFamilyProperties> properties;
 		};
 	}
 }
