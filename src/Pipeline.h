@@ -37,6 +37,7 @@ namespace Shooter{
 				std::shared_ptr<VulkanSwapchain> swapchain;
 
 				VkPipelineLayout pipeline_layout;
+				VkRenderPass render_pass;
 		};
 	}
 }
