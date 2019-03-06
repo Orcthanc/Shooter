@@ -1,4 +1,4 @@
-#include "GraphicsPipeline.h"
+#include "PipelineShaderStage.h"
 #include "Util.h"
 
 #include <fstream>
@@ -6,11 +6,6 @@
 
 using namespace std;
 using namespace Shooter::Renderer;
-
-VulkanPipeline::VulkanPipeline( const PipelineInfo& pipeline_info ){
-	//TODO
-	throw runtime_error( "Unimplemented Method VulkanPipeline::VulkanPipeline" );
-}
 
 ShaderCode Shooter::Renderer::readFile( const string& path ){
 	ifstream file( path, ios::ate | ios::binary );
@@ -49,12 +44,16 @@ VkShaderModule Shooter::Renderer::createShaderModule( const VkDevice device, con
 	return createShaderModule( device, readFile( path ));
 }
 
-ShaderStageInfo::ShaderStageInfo( const VkDevice device, const std::string& path, VkShaderStageFlagBits stage ){
-	this->stage = stage;
-	code = createShaderModule( device, path );
-}
-
-ShaderStageInfo::ShaderStageInfo( const VkDevice device, const ShaderCode& sh_code, VkShaderStageFlagBits stage ){
-	this->stage = stage;
-	code = createShaderModule( device, sh_code );
+void Shooter::Renderer::createShaderStageInfos( const vector<VkShaderModule>& modules, const vector<VkShaderStageFlagBits>& stages, const vector<string>& entry_points, vector<VkPipelineShaderStageCreateInfo>& result ){
+	for( size_t i = 0; i < modules.size(); ++i ){
+		result.push_back({
+			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			nullptr,
+			0,
+			stages[i],
+			modules[i],
+			entry_points[i].c_str(),
+			nullptr,
+		});
+	}
 }

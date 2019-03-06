@@ -2,7 +2,7 @@
 #include "Instance.h"
 #include "Device.h"
 #include "Swapchain.h"
-#include "GraphicsPipeline.h"
+#include "Pipeline.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -96,10 +96,26 @@ int main( int argc, char** argv ){
 		};
 		shared_ptr<VulkanSwapchain> swapchain( new VulkanSwapchain( swapchain_settings ));
 
-		auto test = createShaderModule( device->device, "res/shader/test1/vert.spv" );
-		vkDestroyShaderModule( device->device, test, nullptr );
+		PipelineCreateInfo pipeline_settings = {
+			device,
+			swapchain,
+			{
+				{
+					"res/shader/test1/vert.spv",
+					"res/shader/test1/frag.spv",
+				},
+				{
+					VK_SHADER_STAGE_VERTEX_BIT,
+					VK_SHADER_STAGE_FRAGMENT_BIT,
+				},
+				{
+					"main",
+					"main",
+				},
+			},
+		};
 
-
+		shared_ptr<VulkanPipeline> pipeline( new VulkanPipeline( pipeline_settings ));
 
         while (!glfwWindowShouldClose(window)) {
 
