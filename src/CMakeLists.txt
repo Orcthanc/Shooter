@@ -9,6 +9,12 @@ add_executable( ${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES} )
 find_package( glfw3 3.2 REQUIRED )
 find_package( Vulkan REQUIRED )
 
+
+compile_shaders(
+		shader/test1/shader.frag
+		shader/test1/shader.vert
+)
+
 target_link_libraries( Shooter PUBLIC Vulkan::Vulkan glfw )
 target_include_directories( Shooter PUBLIC "." )
 

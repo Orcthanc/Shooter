@@ -96,7 +96,7 @@ int main( int argc, char** argv ){
 		};
 		shared_ptr<VulkanSwapchain> swapchain( new VulkanSwapchain( swapchain_settings ));
 
-		auto test = createShaderModule( device->device, "res/shader/test1/vert.spv" );
+		auto test = createShaderModule( device->device, "res/shader/test1/shader.vert.spv" );
 		vkDestroyShaderModule( device->device, test, nullptr );
 
 
