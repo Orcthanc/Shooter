@@ -1,7 +1,4 @@
 #!/bin/bash
-echo "Compiling shaders"
-./compile_shaders
-echo "Done"
 echo "Compiling source-code"
 mkdir -p build
 cd build
