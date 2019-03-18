@@ -81,6 +81,7 @@ void VulkanDevice::getRequiredQueueFamilies( const DeviceInitSettings& settings,
 		}
 
 		indices.push_back( queue_family_index );
+		present_queue_index = queue_family_index;
 	}
 
 	VkQueueFlags all_queue_flags[] = { VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_SPARSE_BINDING_BIT };

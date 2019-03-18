@@ -34,13 +34,13 @@ namespace Shooter{
 
 				VkPipeline pipeline;
 				std::vector<VkFramebuffer> framebuffers;
+				VkRenderPass render_pass;
 
 			private:
 				std::shared_ptr<VulkanDevice> device;
 				std::shared_ptr<VulkanSwapchain> swapchain;
 
 				VkPipelineLayout pipeline_layout;
-				VkRenderPass render_pass;
 		};
 	}
 }

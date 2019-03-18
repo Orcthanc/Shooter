@@ -3,6 +3,8 @@
 #include "Device.h"
 #include "Swapchain.h"
 #include "Pipeline.h"
+#include "CommandPool.h"
+#include "Semaphore.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -73,7 +75,7 @@ int main( int argc, char** argv ){
 			instance,
 			{ VK_KHR_SWAPCHAIN_EXTENSION_NAME },
 			true,
-			0,
+			VK_QUEUE_GRAPHICS_BIT,
 		};
 		shared_ptr<VulkanDevice> device( new VulkanDevice( device_settings ));
 
@@ -117,11 +119,107 @@ int main( int argc, char** argv ){
 
 		shared_ptr<VulkanPipeline> pipeline( new VulkanPipeline( pipeline_settings ));
 
+		VulkanCommandPool command_pool( device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0);
+
+		command_pool.allocCommandBuffers( swapchain->imgs.size(), VK_COMMAND_BUFFER_LEVEL_PRIMARY );
+
+
+//Should probably be moved to somewhere else, but don't know to where
+		VkClearValue background = {
+			{
+				{
+					0.1f,
+					0.1f,
+					0.1f,
+					1.0f,
+				},
+			},
+		};
+
+		for( size_t i = 0; i < command_pool.buffers.size(); i++ ){
+			VkCommandBufferBeginInfo begin_inf = {
+				VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+				nullptr,
+				VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+				nullptr,
+			};
+
+			throwonerror( vkBeginCommandBuffer( command_pool.buffers[i], &begin_inf ), "Could not start recording of a command-buffer", VK_SUCCESS );
+
+			VkRenderPassBeginInfo render_inf = {
+				VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+				nullptr,
+				pipeline->render_pass,
+				pipeline->framebuffers[i],
+				{
+					{ 0, 0 },
+					swapchain->img_size,
+				},
+				1,
+				&background,
+			};
+
+			vkCmdBeginRenderPass( command_pool.buffers[i], &render_inf, VK_SUBPASS_CONTENTS_INLINE );
+			vkCmdBindPipeline( command_pool.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pipeline );
+			vkCmdDraw( command_pool.buffers[i], 3, 1, 0, 0 );
+			vkCmdEndRenderPass( command_pool.buffers[i] );
+			throwonerror( vkEndCommandBuffer( command_pool.buffers[i] ), "Could not record command-buffer", VK_SUCCESS );
+		}
+//end of should be moved
+		VulkanSemaphore render_start( device );
+		VulkanSemaphore render_end( device );
+
+		VkQueue graphics_queue;
+		VkQueue present_queue;
+		vkGetDeviceQueue( device->device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0, &graphics_queue );
+		vkGetDeviceQueue( device->device, device->present_queue_index, 0, &present_queue );
+
         while (!glfwWindowShouldClose(window)) {
 
-            glfwSwapBuffers(window);
+//          glfwSwapBuffers(window);
             glfwPollEvents();
+
+			//Testing purposes
+			uint32_t image_index;
+			vkAcquireNextImageKHR( device->device, swapchain->swapchain, 0xFFFFFFFFFFFFFFFF, render_start.semaphore, VK_NULL_HANDLE, &image_index );
+
+			VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT };
+
+			VkSubmitInfo submit_inf = {
+				VK_STRUCTURE_TYPE_SUBMIT_INFO,
+				nullptr,
+				//Start rendering when semaphore signaled
+				1,
+				&render_start.semaphore,
+				wait_stages,
+				//Stuff to render
+				1,
+				&command_pool.buffers[image_index],
+				//Signal when done
+				1,
+				&render_end.semaphore,
+			};
+
+
+			throwonerror( vkQueueSubmit( graphics_queue, 1, &submit_inf, VK_NULL_HANDLE ), "Couldn't submit queue", VK_SUCCESS );
+
+			VkPresentInfoKHR present_inf = {
+				VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+				nullptr,
+				1,
+				&render_end.semaphore,
+				1,
+				&swapchain->swapchain,
+				&image_index,
+				nullptr,
+			};
+
+			vkQueuePresentKHR( present_queue, &present_inf );
+
+			vkQueueWaitIdle( present_queue );
         }
+
+		vkDeviceWaitIdle( device->device );
 
     }catch(const std::exception& e){
         std::cout << "Error: " << std::endl << e.what() << std::endl;

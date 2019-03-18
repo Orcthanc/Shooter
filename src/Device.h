@@ -27,6 +27,7 @@ namespace Shooter{
 				VkDevice device;
 				VkPhysicalDevice phys_dev;
 				std::shared_ptr<VulkanInstance> instance;
+				uint32_t present_queue_index;
 			private:
 				void getRequiredQueueFamilies( const DeviceInitSettings&, VkPhysicalDevice& phys_dev, std::vector<VkDeviceQueueCreateInfo>& create_infos );
 				void selectPhysicalDevice( const DeviceInitSettings&, VkPhysicalDevice& phys_dev );
