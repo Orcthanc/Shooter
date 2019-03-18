@@ -1,2 +1,2 @@
 #!/bin/bash
-cd build && ./src/Shooter
+cd build/src && ./Shooter

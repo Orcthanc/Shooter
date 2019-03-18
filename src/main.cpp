@@ -101,8 +101,8 @@ int main( int argc, char** argv ){
 			swapchain,
 			{
 				{
-					"res/shader/test1/vert.spv",
-					"res/shader/test1/frag.spv",
+					"res/shader/test1/shader.vert.spv",
+					"res/shader/test1/shader.frag.spv",
 				},
 				{
 					VK_SHADER_STAGE_VERTEX_BIT,
