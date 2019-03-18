@@ -86,7 +86,7 @@ int main( int argc, char** argv ){
 			//images
 			3,
 			//format
-			{ VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR },
+			{ VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR },
 			//size
 			{ width, height },
 			//flags
