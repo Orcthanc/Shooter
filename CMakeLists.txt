@@ -17,7 +17,7 @@ function(compile_shaders)
         set(output_file ${CMAKE_CURRENT_BINARY_DIR}/res/${FILE_DIR}/${FILE_NAME}.spv)
         set(compiled_shaders ${compiled_shaders} ${output_file})
         set(compiled_shaders ${compiled_shaders} PARENT_SCOPE)
-        message(STATUS "${CMAKE_SOURCE_DIR}")
+		#message(STATUS "${CMAKE_SOURCE_DIR}")
         add_custom_command(
                 OUTPUT ${output_file}
                 COMMAND ${CMAKE_COMMAND} -E make_directory res/${FILE_DIR}

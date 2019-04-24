@@ -64,6 +64,7 @@ int main( int argc, char** argv ){
 		uint32_t glfw_ext_count;
 		const char** c_glfw_ext = glfwGetRequiredInstanceExtensions( &glfw_ext_count );
 		vector<const char*> glfw_exts( c_glfw_ext, c_glfw_ext + glfw_ext_count );
+
 		InstanceInitSettings instance_settings = {
 			glfw_exts,
 			true,
@@ -128,9 +129,9 @@ int main( int argc, char** argv ){
 		VkClearValue background = {
 			{
 				{
-					0.1f,
-					0.1f,
-					0.1f,
+					0.392f,
+					0.584f,
+					0.929f,
 					1.0f,
 				},
 			},
