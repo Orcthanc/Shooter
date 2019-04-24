@@ -8,14 +8,14 @@
 #include <memory>
 
 namespace Shooter {
-	namespace Renderer {
-		class VulkanSemaphore {
-			public:
-				VulkanSemaphore( std::shared_ptr<VulkanDevice>& );
-				~VulkanSemaphore();
+    namespace Renderer {
+        class VulkanSemaphore {
+            public:
+                VulkanSemaphore( std::shared_ptr<VulkanDevice>& );
+                ~VulkanSemaphore();
 
-				std::shared_ptr<VulkanDevice> device;
-				VkSemaphore semaphore;
-		};
-	}
+                std::shared_ptr<VulkanDevice> device;
+                VkSemaphore semaphore;
+        };
+    }
 }
