@@ -32,7 +32,7 @@ void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeli
         VkCommandBufferBeginInfo begin_inf = {
             VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
             nullptr,
-                VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+            VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
             nullptr,
         };
 
@@ -114,16 +114,22 @@ int main( int argc, char** argv ){
         vector<const char*> glfw_exts( c_glfw_ext, c_glfw_ext + glfw_ext_count );
 
         InstanceInitSettings instance_settings = {
+            //required extensions
             glfw_exts,
+            //create a presentation surface
             true,
+
             window,
         };
         shared_ptr<VulkanInstance> instance( new VulkanInstance( instance_settings ));
 
         DeviceInitSettings device_settings = {
             instance,
+            //device extensions
             { VK_KHR_SWAPCHAIN_EXTENSION_NAME },
+            //Require presentable queue?
             true,
+            //Required Queues
             VK_QUEUE_GRAPHICS_BIT,
         };
         shared_ptr<VulkanDevice> device( new VulkanDevice( device_settings ));
