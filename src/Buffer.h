@@ -24,6 +24,7 @@ namespace Shooter {
                 Buffer( const BufferCreateInfo& );
                 ~Buffer();
 
+                void fillDeviceLocalBuffer( void* data, size_t size, VulkanCommandPool& cmd_pool, VkQueue transfer_queue );
                 void fillBuffer( void* data, size_t size );
                 void copyDataTo( Buffer& target, VulkanCommandPool& cmd_pool, size_t copy_size, VkQueue transfer_queue );
 

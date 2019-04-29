@@ -21,6 +21,9 @@ VulkanCommandPool::~VulkanCommandPool(){
 }
 
 void VulkanCommandPool::allocCommandBuffers( uint32_t amount, VkCommandBufferLevel level ){
+    
+    vkFreeCommandBuffers( device->device, command_pool, static_cast<uint32_t>( buffers.size() ), &buffers[0] );
+
     buffers.resize( amount );
 
     VkCommandBufferAllocateInfo alloc_inf = {
