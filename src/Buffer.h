@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Device.h"
+#include "CommandPool.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -24,6 +25,7 @@ namespace Shooter {
                 ~Buffer();
 
                 void fillBuffer( void* data, size_t size );
+                void copyDataTo( Buffer& target, VulkanCommandPool& cmd_pool, size_t copy_size, VkQueue transfer_queue );
 
                 VkBuffer buffer;
                 VkDeviceMemory memory;

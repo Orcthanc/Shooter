@@ -189,11 +189,18 @@ int main( int argc, char** argv ){
 
         shared_ptr<VulkanPipeline> pipeline( new VulkanPipeline( pipeline_settings ));
 
-        VulkanCommandPool command_pool( device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0);
+        VulkanCommandPool command_pool( device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0 );
 
         command_pool.allocCommandBuffers( swapchain->imgs.size(), VK_COMMAND_BUFFER_LEVEL_PRIMARY );
-        
-        //Testdata
+
+        VkQueue graphics_queue;
+        VkQueue present_queue;
+        vkGetDeviceQueue( device->device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0, &graphics_queue );
+        vkGetDeviceQueue( device->device, device->present_queue_index, 0, &present_queue );
+
+
+
+
         const vector<SimpleVertex> vertices = {
             {{  0.0f, -0.5f }, { 1.0f, 0.0f, 0.0f }},
             {{  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f }},
@@ -202,14 +209,30 @@ int main( int argc, char** argv ){
 
         BufferCreateInfo b_cr_inf = {
             device,
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             sizeof( vertices[0] ) * vertices.size(),
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         };
 
         Buffer buffer( b_cr_inf );
-        buffer.fillBuffer( (void*)&vertices[0], sizeof( vertices[0] ) * vertices.size() );
+        { //Load data to buffer
 
+            VulkanCommandPool staging_pool( device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT );
+
+            //Testdata
+
+            BufferCreateInfo b_cr_inf_stage = {
+                device,
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                sizeof( vertices[0] ) * vertices.size(),
+                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+            };
+
+            Buffer staging_buffer( b_cr_inf_stage );
+            staging_buffer.fillBuffer( (void*)&vertices[0], sizeof( vertices[0] ) * vertices.size() );
+
+            staging_buffer.copyDataTo( buffer, staging_pool, sizeof( vertices[0] ) * vertices.size(), graphics_queue );
+        }//End Load data
         //End Testdata
 
 
@@ -219,12 +242,8 @@ int main( int argc, char** argv ){
         VulkanSemaphore render_start( device );
         VulkanSemaphore render_end( device );
 
-        VkQueue graphics_queue;
-        VkQueue present_queue;
-        vkGetDeviceQueue( device->device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0, &graphics_queue );
-        vkGetDeviceQueue( device->device, device->present_queue_index, 0, &present_queue );
 
-                while (!glfwWindowShouldClose(window)) {
+        while (!glfwWindowShouldClose(window)) {
 
 //          glfwSwapBuffers(window);
             glfwPollEvents();

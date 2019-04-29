@@ -1,5 +1,6 @@
 #include "Buffer.h"
 
+#include "CommandPool.h"
 #include "Util.h"
 
 #include <string.h>
@@ -36,7 +37,7 @@ Buffer::Buffer( const BufferCreateInfo& cr_inf ){
 
     throwonerror( vkAllocateMemory( device->device, &alloc_inf, nullptr, &memory ), "Could not allocate buffer memory", VK_SUCCESS );
 
-    vkBindBufferMemory( device->device, buffer, memory, 0 );
+    throwonerror( vkBindBufferMemory( device->device, buffer, memory, 0 ), "Could not bind buffer memory", VK_SUCCESS );
 }
 
 Buffer::~Buffer(){
@@ -62,4 +63,44 @@ void Buffer::fillBuffer( void* data, size_t size ){
     vkMapMemory( device->device, memory, 0, size, 0, &buffer_data );
     memcpy( buffer_data, data, size );
     vkUnmapMemory( device->device, memory );
+}
+
+void Buffer::copyDataTo( Buffer& target, VulkanCommandPool& cmd_pool, size_t copy_size, VkQueue queue ){
+    cmd_pool.allocCommandBuffers( 1, VK_COMMAND_BUFFER_LEVEL_PRIMARY );
+    
+    VkCommandBuffer& cmd_buffer = cmd_pool.buffers[0];
+
+    VkCommandBufferBeginInfo begin_inf = {
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        nullptr,
+        VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+        nullptr,
+    };
+
+    vkBeginCommandBuffer( cmd_buffer, &begin_inf );
+
+    VkBufferCopy region = {
+        0,
+        0,
+        copy_size,
+    };
+
+    vkCmdCopyBuffer( cmd_buffer, buffer, target.buffer, 1, &region );
+
+    vkEndCommandBuffer( cmd_buffer );
+
+    VkSubmitInfo sub_inf = {
+        VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        nullptr,
+        0,
+        nullptr,
+        nullptr,
+        1,
+        &cmd_buffer,
+        0,
+        nullptr,
+    };
+
+    vkQueueSubmit( queue, 1, &sub_inf, VK_NULL_HANDLE );
+    vkQueueWaitIdle( queue );
 }

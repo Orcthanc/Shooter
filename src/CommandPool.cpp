@@ -4,13 +4,13 @@
 using namespace std;
 using namespace Shooter::Renderer;
 
-VulkanCommandPool::VulkanCommandPool( shared_ptr<VulkanDevice>& device, uint32_t family_index, uint32_t flags ){
+VulkanCommandPool::VulkanCommandPool( shared_ptr<VulkanDevice>& device, uint32_t family_index, VkCommandPoolCreateFlags flags ){
     this->device = device;
     VkCommandPoolCreateInfo cr_inf = {
         VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
         nullptr,
-        family_index,
         flags,
+        family_index,
     };
 
     throwonerror( vkCreateCommandPool( this->device->device, &cr_inf, nullptr, &command_pool ), "Could not create CommandPool.", VK_SUCCESS );
