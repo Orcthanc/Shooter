@@ -221,6 +221,8 @@ int main( int argc, char** argv ){
 
             //Testdata
 
+            buffer.fillDeviceLocalBuffer( (void*)&vertices[0], sizeof( vertices[0] ) * vertices.size(), staging_pool, graphics_queue );
+            /*
             BufferCreateInfo b_cr_inf_stage = {
                 device,
                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -232,6 +234,7 @@ int main( int argc, char** argv ){
             staging_buffer.fillBuffer( (void*)&vertices[0], sizeof( vertices[0] ) * vertices.size() );
 
             staging_buffer.copyDataTo( buffer, staging_pool, sizeof( vertices[0] ) * vertices.size(), graphics_queue );
+            */
         }//End Load data
         //End Testdata
 

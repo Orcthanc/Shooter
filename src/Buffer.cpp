@@ -104,3 +104,17 @@ void Buffer::copyDataTo( Buffer& target, VulkanCommandPool& cmd_pool, size_t cop
     vkQueueSubmit( queue, 1, &sub_inf, VK_NULL_HANDLE );
     vkQueueWaitIdle( queue );
 }
+
+void Buffer::fillDeviceLocalBuffer( void* data, size_t size, VulkanCommandPool& cmd_pool, VkQueue transfer_queue ){
+    BufferCreateInfo stage_buffer_cr_inf = {
+        device,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        size,
+        VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+    };
+
+    Buffer staging_buffer( stage_buffer_cr_inf );
+    staging_buffer.fillBuffer( data, size );
+
+    staging_buffer.copyDataTo( *this, cmd_pool, size, transfer_queue );
+}
