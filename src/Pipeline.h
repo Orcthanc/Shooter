@@ -18,12 +18,19 @@ namespace Shooter{
                 std::vector<VkShaderStageFlagBits> shader_stages;
                 std::vector<std::string> shader_entry_points;
         };
+
+        struct PipelineVertexInputInfo {
+            public:
+                VkVertexInputBindingDescription binding_description;
+                std::vector<VkVertexInputAttributeDescription> attribute_descriptions;
+        };
         
         struct PipelineCreateInfo{
             public:
                 std::shared_ptr<VulkanDevice>& device;
                 std::shared_ptr<VulkanSwapchain>& swapchain;
                 PipelineShaderCreateInfo s_cr_inf;
+                PipelineVertexInputInfo v_in_inf;
         };
 
 

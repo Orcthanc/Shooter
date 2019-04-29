@@ -29,10 +29,10 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
         VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
         nullptr,
         0,
-        0,
-        nullptr,
-        0,
-        nullptr,
+        1,
+        &cr_inf.v_in_inf.binding_description,
+        static_cast<uint32_t>( cr_inf.v_in_inf.attribute_descriptions.size() ),
+        &cr_inf.v_in_inf.attribute_descriptions[0],
     };
 
     VkPipelineInputAssemblyStateCreateInfo input_assembly_info = {

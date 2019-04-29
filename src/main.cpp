@@ -5,9 +5,12 @@
 #include "Pipeline.h"
 #include "CommandPool.h"
 #include "Semaphore.h"
+#include "Vertex.h"
+#include "Buffer.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <iostream>
 #include <exception>
@@ -16,7 +19,7 @@
 using namespace std;
 using namespace Shooter::Renderer;
 
-void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeline, VulkanSwapchain& swapchain ){
+void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeline, VulkanSwapchain& swapchain, Buffer& vertex_buffer ){
     VkClearValue background = {
         {
             {
@@ -53,6 +56,14 @@ void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeli
 
         vkCmdBeginRenderPass( command_pool.buffers[i], &render_inf, VK_SUBPASS_CONTENTS_INLINE );
         vkCmdBindPipeline( command_pool.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline );
+        VkBuffer vertexbuffers[] = {
+            vertex_buffer.buffer,
+        };
+        VkDeviceSize offsets[] = {
+            0,
+        };
+        vkCmdBindVertexBuffers( command_pool.buffers[i], 0, 1, vertexbuffers, offsets );
+
         vkCmdDraw( command_pool.buffers[i], 3, 1, 0, 0 );
         vkCmdEndRenderPass( command_pool.buffers[i] );
         throwonerror( vkEndCommandBuffer( command_pool.buffers[i] ), "Could not record command-buffer", VK_SUCCESS );
@@ -170,6 +181,10 @@ int main( int argc, char** argv ){
                     "main",
                 },
             },
+            {
+                SimpleVertex::getBindingDescription( 0 ),
+                SimpleVertex::getAttributeDescriptions( 0 ),
+            },
         };
 
         shared_ptr<VulkanPipeline> pipeline( new VulkanPipeline( pipeline_settings ));
@@ -177,9 +192,28 @@ int main( int argc, char** argv ){
         VulkanCommandPool command_pool( device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0);
 
         command_pool.allocCommandBuffers( swapchain->imgs.size(), VK_COMMAND_BUFFER_LEVEL_PRIMARY );
+        
+        //Testdata
+        const vector<SimpleVertex> vertices = {
+            {{  0.0f, -0.5f }, { 1.0f, 0.0f, 0.0f }},
+            {{  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f }},
+            {{ -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }},
+        };
+
+        BufferCreateInfo b_cr_inf = {
+            device,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            sizeof( vertices[0] ) * vertices.size(),
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        };
+
+        Buffer buffer( b_cr_inf );
+        buffer.fillBuffer( (void*)&vertices[0], sizeof( vertices[0] ) * vertices.size() );
+
+        //End Testdata
 
 
-        createRenderPasses( command_pool, *pipeline, *swapchain );
+        createRenderPasses( command_pool, *pipeline, *swapchain, buffer );
 
 
         VulkanSemaphore render_start( device );
@@ -190,7 +224,7 @@ int main( int argc, char** argv ){
         vkGetDeviceQueue( device->device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0, &graphics_queue );
         vkGetDeviceQueue( device->device, device->present_queue_index, 0, &present_queue );
 
-        while (!glfwWindowShouldClose(window)) {
+                while (!glfwWindowShouldClose(window)) {
 
 //          glfwSwapBuffers(window);
             glfwPollEvents();
