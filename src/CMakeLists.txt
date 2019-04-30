@@ -20,7 +20,7 @@ target_include_directories( Shooter PUBLIC "." )
 
 if( UNIX )
 	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall -O3" )
-	target_compile_definitions( ${PROJECT_NAME} PUBLIC VK_USE_PLATFORM_XLIB_KHR=1 )
+	target_compile_definitions( ${PROJECT_NAME} PUBLIC VK_USE_PLATFORM_XCB_KHR=1 )
 elseif( WIN32 )
 	target_compile_definitions( ${PROJECT_NAME} PUBLIC VK_USE_PLATFORM_WIN32_KHR=1 )
 endif( UNIX )

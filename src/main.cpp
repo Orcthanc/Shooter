@@ -19,7 +19,7 @@
 using namespace std;
 using namespace Shooter::Renderer;
 
-void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeline, VulkanSwapchain& swapchain, Buffer& vertex_buffer ){
+void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeline, VulkanSwapchain& swapchain, Buffer& vertex_buffer, Buffer& index_buffer, uint32_t index_buffer_size ){
     VkClearValue background = {
         {
             {
@@ -56,15 +56,16 @@ void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeli
 
         vkCmdBeginRenderPass( command_pool.buffers[i], &render_inf, VK_SUBPASS_CONTENTS_INLINE );
         vkCmdBindPipeline( command_pool.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline );
-        VkBuffer vertexbuffers[] = {
+        VkBuffer vertex_buffers[] = {
             vertex_buffer.buffer,
         };
         VkDeviceSize offsets[] = {
             0,
         };
-        vkCmdBindVertexBuffers( command_pool.buffers[i], 0, 1, vertexbuffers, offsets );
+        vkCmdBindVertexBuffers( command_pool.buffers[i], 0, 1, vertex_buffers, offsets );
+        vkCmdBindIndexBuffer( command_pool.buffers[i], index_buffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
-        vkCmdDraw( command_pool.buffers[i], 3, 1, 0, 0 );
+        vkCmdDrawIndexed( command_pool.buffers[i], index_buffer_size, 1, 0, 0, 0 );
         vkCmdEndRenderPass( command_pool.buffers[i] );
         throwonerror( vkEndCommandBuffer( command_pool.buffers[i] ), "Could not record command-buffer", VK_SUCCESS );
     }
@@ -202,9 +203,14 @@ int main( int argc, char** argv ){
 
 
         const vector<SimpleVertex> vertices = {
-            {{  0.0f, -0.5f }, { 1.0f, 0.0f, 0.0f }},
-            {{  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f }},
-            {{ -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }},
+            {{ -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }},
+            {{  0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }},
+            {{  0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f }},
+            {{ -0.5f,  0.5f }, { 0.0f, 1.0f, 1.0f }},
+        };
+
+        const vector<uint16_t> indices = {
+            0, 1, 2, 2, 3, 0,
         };
 
         BufferCreateInfo b_cr_inf = {
@@ -214,32 +220,28 @@ int main( int argc, char** argv ){
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         };
 
-        Buffer buffer( b_cr_inf );
-        { //Load data to buffer
+        BufferCreateInfo ind_b_cr_inf = {
+            device,
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            sizeof( indices[0] ) * indices.size(),
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        };
+
+        Buffer vertex_buffer( b_cr_inf );
+        Buffer index_buffer( ind_b_cr_inf );
+        { //Load data to vertex_buffer
 
             VulkanCommandPool staging_pool( device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT );
 
             //Testdata
 
-            buffer.fillDeviceLocalBuffer( (void*)&vertices[0], sizeof( vertices[0] ) * vertices.size(), staging_pool, graphics_queue );
-            /*
-            BufferCreateInfo b_cr_inf_stage = {
-                device,
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                sizeof( vertices[0] ) * vertices.size(),
-                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-            };
-
-            Buffer staging_buffer( b_cr_inf_stage );
-            staging_buffer.fillBuffer( (void*)&vertices[0], sizeof( vertices[0] ) * vertices.size() );
-
-            staging_buffer.copyDataTo( buffer, staging_pool, sizeof( vertices[0] ) * vertices.size(), graphics_queue );
-            */
-        }//End Load data
+            vertex_buffer.fillDeviceLocalBuffer( (void*)&vertices[0], sizeof( vertices[0] ) * vertices.size(), staging_pool, graphics_queue );
+            index_buffer.fillDeviceLocalBuffer( (void*)&indices[0], sizeof( indices[0] ) * indices.size(), staging_pool, graphics_queue );
+        }//End Load data (Out of Scope staging_pool)
         //End Testdata
 
 
-        createRenderPasses( command_pool, *pipeline, *swapchain, buffer );
+        createRenderPasses( command_pool, *pipeline, *swapchain, vertex_buffer, index_buffer, static_cast<uint32_t>( indices.size() ));
 
 
         VulkanSemaphore render_start( device );
