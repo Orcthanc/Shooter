@@ -39,6 +39,9 @@ namespace Shooter{
                 VulkanPipeline( PipelineCreateInfo& );
                 ~VulkanPipeline();
 
+                VulkanPipeline( const VulkanPipeline& ) = delete;
+                VulkanPipeline& operator=( const VulkanPipeline& ) = delete;
+
                 VkPipeline pipeline;
                 std::vector<VkFramebuffer> framebuffers;
                 VkRenderPass render_pass;

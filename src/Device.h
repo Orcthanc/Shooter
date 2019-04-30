@@ -22,6 +22,9 @@ namespace Shooter{
                 VulkanDevice( const DeviceInitSettings& );
                 ~VulkanDevice();
 
+                VulkanDevice( const VulkanDevice& ) = delete;
+                VulkanDevice& operator=( const VulkanDevice& );
+
                 uint32_t getPhysicalDeviceQueueFamilyIndex( VkQueueFlagBits queue_type );
 
                 VkDevice device;

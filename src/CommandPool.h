@@ -15,9 +15,11 @@ namespace Shooter {
                 VulkanCommandPool( std::shared_ptr<VulkanDevice>&, uint32_t queue_family_index, uint32_t flags );
                 ~VulkanCommandPool();
 
+                VulkanCommandPool( const VulkanCommandPool& ) = delete;
+                VulkanCommandPool& operator=( const VulkanCommandPool& ) = delete;
+
                 void allocCommandBuffers( uint32_t amount, VkCommandBufferLevel );
 
-                
                 VkCommandPool command_pool;
                 std::shared_ptr<VulkanDevice> device;
                 std::vector<VkCommandBuffer> buffers;

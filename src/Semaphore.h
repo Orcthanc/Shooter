@@ -14,6 +14,9 @@ namespace Shooter {
                 VulkanSemaphore( std::shared_ptr<VulkanDevice>& );
                 ~VulkanSemaphore();
 
+                VulkanSemaphore( const VulkanSemaphore& ) = delete;
+                VulkanSemaphore& operator=( const VulkanSemaphore& ) = delete;
+
                 std::shared_ptr<VulkanDevice> device;
                 VkSemaphore semaphore;
         };

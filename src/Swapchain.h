@@ -25,6 +25,9 @@ namespace Shooter{
                 VulkanSwapchain( const SwapchainInitSettings& );
                 ~VulkanSwapchain();
 
+                VulkanSwapchain( const VulkanSwapchain& ) = delete;
+                VulkanSwapchain& operator=( const VulkanSwapchain& ) = delete;
+
                 std::shared_ptr<VulkanDevice> device;
                 VkSwapchainKHR swapchain;
                 std::vector<VkImage> imgs;

@@ -19,6 +19,9 @@ namespace Shooter{
                 VulkanInstance( const InstanceInitSettings& );
                 ~VulkanInstance();
 
+                VulkanInstance( const VulkanInstance& ) = delete;
+                VulkanInstance& operator=( const VulkanInstance& ) = delete;
+
                 VkInstance instance;
                 VkSurfaceKHR surface;
 
