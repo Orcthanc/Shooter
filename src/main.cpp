@@ -7,19 +7,26 @@
 #include "Semaphore.h"
 #include "Vertex.h"
 #include "Buffer.h"
+#include "Uniforms.h"
+#include "DescriptorSetLayout.h"
+#include "DescriptorPool.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 #include <exception>
 #include <memory>
+#include <chrono>
 
 using namespace std;
 using namespace Shooter::Renderer;
 
-void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeline, VulkanSwapchain& swapchain, Buffer& vertex_buffer, Buffer& index_buffer, uint32_t index_buffer_size ){
+void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeline, VulkanSwapchain& swapchain, Buffer& vertex_buffer, Buffer& index_buffer, uint32_t index_buffer_size, VkDescriptorSet& descriptor_set ){
     VkClearValue background = {
         {
             {
@@ -64,6 +71,7 @@ void createRenderPasses( VulkanCommandPool& command_pool, VulkanPipeline& pipeli
         };
         vkCmdBindVertexBuffers( command_pool.buffers[i], 0, 1, vertex_buffers, offsets );
         vkCmdBindIndexBuffer( command_pool.buffers[i], index_buffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+        vkCmdBindDescriptorSets( command_pool.buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.pipeline_layout, 0, 1, &descriptor_set, 0, nullptr );
 
         vkCmdDrawIndexed( command_pool.buffers[i], index_buffer_size, 1, 0, 0, 0 );
         vkCmdEndRenderPass( command_pool.buffers[i] );
@@ -109,6 +117,22 @@ void draw( VulkanDevice& device, VulkanSwapchain& swapchain, VulkanCommandPool& 
     vkQueuePresentKHR( present_queue, &present_inf );
 
     vkQueueWaitIdle( present_queue );
+}
+
+static auto start_time = chrono::high_resolution_clock::now();
+static auto last_time = chrono::high_resolution_clock::now();
+void updateUniformBuffer( Buffer& uniform, MVPMat mvp ){
+    auto curr_time = chrono::high_resolution_clock::now();
+
+    float time = chrono::duration<float, chrono::seconds::period>( curr_time - start_time ).count();
+    float fps = chrono::duration<float, chrono::seconds::period>( curr_time - last_time ).count();
+    last_time = curr_time;
+    printf( "\rCurrent fps: %f", 1 / fps );
+    mvp.model = glm::rotate( mvp.model, time, glm::vec3( 0.0f, 0.0f, 1.0f ));
+
+    uniform.fillBuffer( (void*)&mvp, sizeof( mvp ));
+
+
 }
 
 int main( int argc, char** argv ){
@@ -165,6 +189,61 @@ int main( int argc, char** argv ){
         };
         shared_ptr<VulkanSwapchain> swapchain( new VulkanSwapchain( swapchain_settings ));
 
+        vector<VkDescriptorSetLayoutBinding> bindings = {
+            {
+                {
+                    0,
+                    VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                    1,
+                    VK_SHADER_STAGE_VERTEX_BIT,
+                    nullptr,
+                },
+            },
+        };
+        
+        DescriptorSetLayout descriptor_layout( device, bindings );
+
+        BufferCreateInfo mvp_ub_cr_inf = {
+            device,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            sizeof( MVPMat ),
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        };
+
+        Buffer mvp_uniform_buffer( mvp_ub_cr_inf );
+
+
+        DescriptorPoolSizeInfo p_s_inf = {
+            device,
+            {
+                {
+                    VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                    1,
+                },
+            },
+            0,
+            1,
+        };
+
+        DescriptorPool desc_pool( p_s_inf );
+
+        DescriptorBufferAllocateInfo d_b_alloc_inf = {
+            {
+                descriptor_layout.layout,
+            },
+            {
+                {
+                    mvp_uniform_buffer.buffer,
+                    0,
+                    sizeof( MVPMat ),
+                },
+            },
+            0,
+            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        };
+
+        VkDescriptorSet desc_set = desc_pool.allocateBufferDescriptorSets( d_b_alloc_inf );
+
         PipelineCreateInfo pipeline_settings = {
             device,
             swapchain,
@@ -185,6 +264,11 @@ int main( int argc, char** argv ){
             {
                 SimpleVertex::getBindingDescription( 0 ),
                 SimpleVertex::getAttributeDescriptions( 0 ),
+            },
+            {
+                {
+                    descriptor_layout.layout,
+                },
             },
         };
 
@@ -227,6 +311,7 @@ int main( int argc, char** argv ){
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         };
 
+        
         Buffer vertex_buffer( b_cr_inf );
         Buffer index_buffer( ind_b_cr_inf );
         { //Load data to vertex_buffer
@@ -241,11 +326,22 @@ int main( int argc, char** argv ){
         //End Testdata
 
 
-        createRenderPasses( command_pool, *pipeline, *swapchain, vertex_buffer, index_buffer, static_cast<uint32_t>( indices.size() ));
+
+
+        createRenderPasses( command_pool, *pipeline, *swapchain, vertex_buffer, index_buffer, static_cast<uint32_t>( indices.size() ), desc_set );
 
 
         VulkanSemaphore render_start( device );
         VulkanSemaphore render_end( device );
+
+        MVPMat test_mvp;
+
+        test_mvp.model = glm::mat4( 1.0f );
+        test_mvp.view = glm::lookAt( glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ), glm::vec3( 0.0f, 0.0f, 1.0f ));
+        test_mvp.proj = glm::perspective( glm::radians( 45.0f ), (float) swapchain->img_size.width / (float) swapchain->img_size.height, 0.1f, 50.0f );
+
+        //Cause different coordinates than OpenGL
+        test_mvp.proj[1][1] *= -1;
 
 
         while (!glfwWindowShouldClose(window)) {
@@ -253,6 +349,7 @@ int main( int argc, char** argv ){
 //          glfwSwapBuffers(window);
             glfwPollEvents();
 
+            updateUniformBuffer( mvp_uniform_buffer, test_mvp );
             draw( *device, *swapchain, command_pool, graphics_queue, present_queue, render_start, render_end );
         }
 

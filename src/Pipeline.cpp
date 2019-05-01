@@ -51,7 +51,7 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
         0.0f,
         1.0f,
     };
-    
+
     VkRect2D scissor = {
         {
             0,
@@ -78,7 +78,7 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
         VK_FALSE,
         VK_POLYGON_MODE_FILL,
         VK_CULL_MODE_BACK_BIT,
-        VK_FRONT_FACE_CLOCKWISE,
+        VK_FRONT_FACE_COUNTER_CLOCKWISE,
         VK_FALSE,
         0.0f,
         0.0f,
@@ -129,8 +129,8 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
         VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         nullptr,
         0,
-        0,
-        nullptr,
+        static_cast<uint32_t>( cr_inf.l_cr_inf.descriptor_layouts.size() ),
+        cr_inf.l_cr_inf.descriptor_layouts.size() > 0 ? &cr_inf.l_cr_inf.descriptor_layouts[0] : nullptr,
         0,
         nullptr,
     };
@@ -181,7 +181,7 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
     };
 
     throwonerror( vkCreateRenderPass( device->device, &render_pass_info, nullptr, &render_pass ), "Could not create renderpass", VK_SUCCESS );
-    
+
     //Creation
     VkGraphicsPipelineCreateInfo pipeline_cr_inf = {
         VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -206,14 +206,14 @@ VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
     };
 
     throwonerror( vkCreateGraphicsPipelines( device->device, VK_NULL_HANDLE, 1, &pipeline_cr_inf, nullptr, &pipeline ), "Failed to create Graphics pipeline", VK_SUCCESS );
-    
+
     //Cleanup shadermodules
     for( auto& m: shader_modules )
         vkDestroyShaderModule( device->device, m, nullptr );
 
     //Create framebuffer
     framebuffers.resize( swapchain->img_views.size() );
-    
+
     for( size_t i = 0; i < swapchain->img_views.size(); i++ ){
         VkImageView attachments[] = { swapchain->img_views[i] };
 

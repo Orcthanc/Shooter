@@ -24,6 +24,11 @@ namespace Shooter{
                 VkVertexInputBindingDescription binding_description;
                 std::vector<VkVertexInputAttributeDescription> attribute_descriptions;
         };
+
+        struct PipelineLayoutCreateInfo {
+            public:
+                std::vector<VkDescriptorSetLayout> descriptor_layouts;
+        };
         
         struct PipelineCreateInfo{
             public:
@@ -31,6 +36,7 @@ namespace Shooter{
                 std::shared_ptr<VulkanSwapchain>& swapchain;
                 PipelineShaderCreateInfo s_cr_inf;
                 PipelineVertexInputInfo v_in_inf;
+                PipelineLayoutCreateInfo l_cr_inf;
         };
 
 
@@ -46,11 +52,11 @@ namespace Shooter{
                 std::vector<VkFramebuffer> framebuffers;
                 VkRenderPass render_pass;
 
+                VkPipelineLayout pipeline_layout;
+
             private:
                 std::shared_ptr<VulkanDevice> device;
                 std::shared_ptr<VulkanSwapchain> swapchain;
-
-                VkPipelineLayout pipeline_layout;
         };
     }
 }
