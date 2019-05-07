@@ -42,7 +42,7 @@ namespace Shooter{
 
         class VulkanPipeline{
             public:
-                VulkanPipeline( PipelineCreateInfo& );
+                VulkanPipeline( PipelineCreateInfo&& );
                 ~VulkanPipeline();
 
                 VulkanPipeline( const VulkanPipeline& ) = delete;

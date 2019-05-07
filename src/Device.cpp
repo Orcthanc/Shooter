@@ -17,7 +17,7 @@ static bool ext_supported( vector<VkExtensionProperties> avaible, const char* ex
     return false;
 }
 
-VulkanDevice::VulkanDevice( const DeviceInitSettings& settings ){
+VulkanDevice::VulkanDevice( DeviceInitSettings&& settings ){
     instance = settings.instance;
 
     VkPhysicalDevice phys_dev;

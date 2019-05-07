@@ -157,7 +157,7 @@ int main( int argc, char** argv ){
 
             window,
         };
-        shared_ptr<VulkanInstance> instance( new VulkanInstance( instance_settings ));
+        shared_ptr<VulkanInstance> instance( new VulkanInstance( move( instance_settings )));
 
         DeviceInitSettings device_settings = {
             instance,
@@ -168,7 +168,7 @@ int main( int argc, char** argv ){
             //Required Queues
             VK_QUEUE_GRAPHICS_BIT,
         };
-        shared_ptr<VulkanDevice> device( new VulkanDevice( device_settings ));
+        shared_ptr<VulkanDevice> device( new VulkanDevice( move( device_settings )));
 
         SwapchainInitSettings swapchain_settings = {
             device,
@@ -187,7 +187,7 @@ int main( int argc, char** argv ){
             //old swapchain
             VK_NULL_HANDLE,
         };
-        shared_ptr<VulkanSwapchain> swapchain( new VulkanSwapchain( swapchain_settings ));
+        shared_ptr<VulkanSwapchain> swapchain( new VulkanSwapchain( move( swapchain_settings )));
 
         vector<VkDescriptorSetLayoutBinding> bindings = {
             {
@@ -210,7 +210,7 @@ int main( int argc, char** argv ){
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         };
 
-        Buffer mvp_uniform_buffer( mvp_ub_cr_inf );
+        Buffer mvp_uniform_buffer( move( mvp_ub_cr_inf ));
 
 
         DescriptorPoolSizeInfo p_s_inf = {
@@ -225,7 +225,7 @@ int main( int argc, char** argv ){
             1,
         };
 
-        DescriptorPool desc_pool( p_s_inf );
+        DescriptorPool desc_pool( move( p_s_inf ));
 
         DescriptorBufferAllocateInfo d_b_alloc_inf = {
             {
@@ -242,7 +242,7 @@ int main( int argc, char** argv ){
             VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         };
 
-        VkDescriptorSet desc_set = desc_pool.allocateBufferDescriptorSets( d_b_alloc_inf );
+        VkDescriptorSet desc_set = desc_pool.allocateBufferDescriptorSets( move( d_b_alloc_inf ));
 
         PipelineCreateInfo pipeline_settings = {
             device,
@@ -272,7 +272,7 @@ int main( int argc, char** argv ){
             },
         };
 
-        shared_ptr<VulkanPipeline> pipeline( new VulkanPipeline( pipeline_settings ));
+        shared_ptr<VulkanPipeline> pipeline( new VulkanPipeline( move( pipeline_settings )));
 
         VulkanCommandPool command_pool( device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), 0 );
 
@@ -312,8 +312,8 @@ int main( int argc, char** argv ){
         };
 
         
-        Buffer vertex_buffer( b_cr_inf );
-        Buffer index_buffer( ind_b_cr_inf );
+        Buffer vertex_buffer( move( b_cr_inf ));
+        Buffer index_buffer( move( ind_b_cr_inf ));
         { //Load data to vertex_buffer
 
             VulkanCommandPool staging_pool( device, device->getPhysicalDeviceQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT ), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT );

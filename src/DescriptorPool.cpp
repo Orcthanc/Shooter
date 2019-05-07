@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Shooter::Renderer;
 
-DescriptorPool::DescriptorPool( DescriptorPoolSizeInfo& alloc_inf ){
+DescriptorPool::DescriptorPool( DescriptorPoolSizeInfo&& alloc_inf ){
     device = alloc_inf.device;
 
     VkDescriptorPoolCreateInfo cr_inf = {
@@ -26,7 +26,7 @@ DescriptorPool::~DescriptorPool(){
     vkDestroyDescriptorPool( device->device, pool, nullptr );
 }
 
-VkDescriptorSet DescriptorPool::allocateBufferDescriptorSets( DescriptorBufferAllocateInfo& alloc_inf ){
+VkDescriptorSet DescriptorPool::allocateBufferDescriptorSets( DescriptorBufferAllocateInfo&& alloc_inf ){
     VkDescriptorSet result;
 
     uint32_t size = static_cast<uint32_t>( alloc_inf.layouts.size() );

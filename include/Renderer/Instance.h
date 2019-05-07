@@ -16,7 +16,7 @@ namespace Shooter{
 
         class VulkanInstance{
             public:
-                VulkanInstance( const InstanceInitSettings& );
+                VulkanInstance( InstanceInitSettings&& );
                 ~VulkanInstance();
 
                 VulkanInstance( const VulkanInstance& ) = delete;

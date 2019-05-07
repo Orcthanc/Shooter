@@ -26,13 +26,13 @@ namespace Shooter {
 
         class DescriptorPool {
             public:
-                DescriptorPool( DescriptorPoolSizeInfo& );
+                DescriptorPool( DescriptorPoolSizeInfo&& );
                 ~DescriptorPool();
 
                 DescriptorPool( const DescriptorPool& ) = delete;
                 DescriptorPool& operator=( const DescriptorPool& ) = delete;
 
-                VkDescriptorSet allocateBufferDescriptorSets( DescriptorBufferAllocateInfo& );
+                VkDescriptorSet allocateBufferDescriptorSets( DescriptorBufferAllocateInfo&& );
 
                 VkDescriptorPool pool;
             private:

@@ -8,7 +8,7 @@
 using namespace std;
 using namespace Shooter::Renderer;
 
-VulkanPipeline::VulkanPipeline( PipelineCreateInfo& cr_inf ){
+VulkanPipeline::VulkanPipeline( PipelineCreateInfo&& cr_inf ){
     device = cr_inf.device;
     swapchain = cr_inf.swapchain;
 

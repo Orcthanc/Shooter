@@ -22,7 +22,7 @@ namespace Shooter{
 
         class VulkanSwapchain{
             public:
-                VulkanSwapchain( const SwapchainInitSettings& );
+                VulkanSwapchain( SwapchainInitSettings&& );
                 ~VulkanSwapchain();
 
                 VulkanSwapchain( const VulkanSwapchain& ) = delete;

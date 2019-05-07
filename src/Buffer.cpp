@@ -8,7 +8,7 @@
 using namespace std;
 using namespace Shooter::Renderer;
 
-Buffer::Buffer( const BufferCreateInfo& cr_inf ){
+Buffer::Buffer( BufferCreateInfo&& cr_inf ){
     device = cr_inf.device;
 
     size = cr_inf.size;
@@ -113,7 +113,7 @@ void Buffer::fillDeviceLocalBuffer( void* data, size_t size, VulkanCommandPool& 
         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
     };
 
-    Buffer staging_buffer( stage_buffer_cr_inf );
+    Buffer staging_buffer( move( stage_buffer_cr_inf ));
     staging_buffer.fillBuffer( data, size );
 
     staging_buffer.copyDataTo( *this, cmd_pool, size, transfer_queue );

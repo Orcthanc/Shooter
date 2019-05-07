@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Shooter::Renderer;
 
-VulkanSwapchain::VulkanSwapchain( const SwapchainInitSettings& settings ){
+VulkanSwapchain::VulkanSwapchain( SwapchainInitSettings&& settings ){
     device = settings.device;
 
     present_mode = settings.desired_present_mode;

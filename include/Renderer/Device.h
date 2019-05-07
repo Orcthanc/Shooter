@@ -19,7 +19,7 @@ namespace Shooter{
 
         class VulkanDevice{
             public:
-                VulkanDevice( const DeviceInitSettings& );
+                VulkanDevice( DeviceInitSettings&& );
                 ~VulkanDevice();
 
                 VulkanDevice( const VulkanDevice& ) = delete;

@@ -14,7 +14,7 @@ static bool ext_supported( vector<VkExtensionProperties> avaible, const char* ex
     return false;
 }
 
-VulkanInstance::VulkanInstance( const InstanceInitSettings& settings ){
+VulkanInstance::VulkanInstance( InstanceInitSettings&& settings ){
 
     throwonerror( checkExtensions( settings.extensions ), "Could not find required instance extensions" );
 

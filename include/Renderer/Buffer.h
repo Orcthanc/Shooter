@@ -21,7 +21,7 @@ namespace Shooter {
 
         class Buffer {
             public:
-                Buffer( const BufferCreateInfo& );
+                Buffer( BufferCreateInfo&& );
                 ~Buffer();
 
                 Buffer( const Buffer& ) = delete;
