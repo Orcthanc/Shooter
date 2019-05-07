@@ -16,7 +16,7 @@ compile_shaders(
 )
 
 target_link_libraries( Shooter PUBLIC Vulkan::Vulkan glfw )
-target_include_directories( Shooter PUBLIC "." )
+target_include_directories( Shooter PUBLIC "." "../include" )
 
 if( UNIX )
 	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall -O3" )

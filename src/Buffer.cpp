@@ -1,6 +1,6 @@
-#include "Buffer.h"
+#include "Renderer/Buffer.h"
 
-#include "CommandPool.h"
+#include "Renderer/CommandPool.h"
 #include "Util.h"
 
 #include <string.h>

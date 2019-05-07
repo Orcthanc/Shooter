@@ -1,4 +1,4 @@
-#include "Vertex.h"
+#include "Renderer/Vertex.h"
 
 using namespace std;
 using namespace Shooter::Renderer;

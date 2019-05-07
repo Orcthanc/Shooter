@@ -1,4 +1,4 @@
-#include "Semaphore.h"
+#include "Renderer/Semaphore.h"
 #include "Util.h"
 
 using namespace std;
